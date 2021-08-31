@@ -2,8 +2,9 @@
     "name": "Mediapipe.Holistic.Runtime",
     "rootNamespace": "",
     "references": [
-        "GUID:9cd4ce824d257d5498970dcfaecf178f",
-        "GUID:d8b63aba1907145bea998dd612889d6b"
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:3da4836269f54a14fae4f2dc4d8a73ae",
+        "GUID:9cd4ce824d257d5498970dcfaecf178f"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

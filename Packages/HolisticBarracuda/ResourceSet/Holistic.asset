@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86fe63612277d0240905af51fd2e807d, type: 3}
   m_Name: Holistic
   m_EditorClassIdentifier: 
+  blazePoseResource: {fileID: 11400000, guid: f19b49e33e0e57347b280b0184fcb7cb, type: 2}
   faceMeshResource: {fileID: 11400000, guid: 7dea2325d80e6af469e5633ac60efaea, type: 2}
   cs: {fileID: 7200000, guid: 0e4a93cccc092d04582737c9cb773ce8, type: 3}

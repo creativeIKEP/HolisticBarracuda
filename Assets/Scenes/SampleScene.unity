@@ -474,8 +474,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05df763e3ac34b245986eeaddf61cb1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cam: {fileID: 963194227}
   webCamInput: {fileID: 1716695272}
   image: {fileID: 562178247}
+  poseShader: {fileID: 4800000, guid: 53b40831901b386419606fafb90ff9c1, type: 3}
+  humanExistThreshold: 0.5
   faceMeshShader: {fileID: 4800000, guid: 8d349fe931d52f440a93aec0e3ec67ea, type: 3}
   resource: {fileID: 11400000, guid: 3d7456c7320edba4caea63df7db64fb7, type: 2}
 --- !u!114 &1716695272
