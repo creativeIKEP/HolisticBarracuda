@@ -476,8 +476,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   webCamInput: {fileID: 1716695272}
   image: {fileID: 562178247}
-  _shader: {fileID: 4800000, guid: 8d349fe931d52f440a93aec0e3ec67ea, type: 3}
-  faceMeshResource: {fileID: 11400000, guid: 7dea2325d80e6af469e5633ac60efaea, type: 2}
+  faceMeshShader: {fileID: 4800000, guid: 8d349fe931d52f440a93aec0e3ec67ea, type: 3}
+  resource: {fileID: 11400000, guid: 3d7456c7320edba4caea63df7db64fb7, type: 2}
 --- !u!114 &1716695272
 MonoBehaviour:
   m_ObjectHideFlags: 0

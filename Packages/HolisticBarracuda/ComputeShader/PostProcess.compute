@@ -1,0 +1,11 @@
+#pragma kernel IrisRecon
+
+StructuredBuffer<float4> _IrisVertices;
+float4x4 _irisCropMatrix;
+RWStructuredBuffer<float4> _IrisReconVertices;
+
+[numthreads(1,1,1)]
+void IrisRecon (uint3 id : SV_DispatchThreadID)
+{
+    _IrisReconVertices[id.x] = mul(_irisCropMatrix, _IrisVertices[id.x]);
+}

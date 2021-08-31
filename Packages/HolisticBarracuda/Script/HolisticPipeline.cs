@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using MediaPipe.FaceMesh;
 
@@ -9,25 +7,39 @@ namespace MediaPipe.Holistic {
 public class HolisticPipeline : System.IDisposable
 {
     public ComputeBuffer faceVertexBuffer => facePipeline.RefinedFaceVertexBuffer;
-    public ComputeBuffer leftEyeVertexBuffer => facePipeline.RawLeftEyeVertexBuffer;
-    public ComputeBuffer rightEyeVertexBuffer => facePipeline.RawRightEyeVertexBuffer;
+    public ComputeBuffer leftEyeVertexBuffer;
+    public ComputeBuffer rightEyeVertexBuffer;
 
     FacePipeline facePipeline;
-    public Matrix4x4 leftEyeCropMatrix;
-    public Matrix4x4 rightEyeCropMatrix;
+    ComputeShader cs;
 
-    public HolisticPipeline(MediaPipe.FaceMesh.ResourceSet faceMeshResource){
-        facePipeline = new FacePipeline(faceMeshResource);
+    public HolisticPipeline(HolisticResource resource){
+        cs = resource.cs;
+        facePipeline = new FacePipeline(resource.faceMeshResource);
+        leftEyeVertexBuffer = new ComputeBuffer(facePipeline.RawLeftEyeVertexBuffer.count, sizeof(float) * 4);
+        rightEyeVertexBuffer = new ComputeBuffer(facePipeline.RawRightEyeVertexBuffer.count, sizeof(float) * 4);
     }
 
     public void ProcessImage(Texture inputTexture){
         facePipeline.ProcessImage(inputTexture);
-        leftEyeCropMatrix = facePipeline.LeftEyeCropMatrix;
-        rightEyeCropMatrix = facePipeline.RightEyeCropMatrix;
+        
+        // Reconstruct left eye rotation
+        cs.SetMatrix("_irisCropMatrix", facePipeline.LeftEyeCropMatrix);
+        cs.SetBuffer(0, "_IrisVertices", facePipeline.RawLeftEyeVertexBuffer);
+        cs.SetBuffer(0, "_IrisReconVertices", leftEyeVertexBuffer);
+        cs.Dispatch(0, facePipeline.RawLeftEyeVertexBuffer.count, 1, 1);
+
+        // Reconstruct right eye rotation
+        cs.SetMatrix("_irisCropMatrix", facePipeline.RightEyeCropMatrix);
+        cs.SetBuffer(0, "_IrisVertices", facePipeline.RawRightEyeVertexBuffer);
+        cs.SetBuffer(0, "_IrisReconVertices", rightEyeVertexBuffer);
+        cs.Dispatch(0, facePipeline.RawRightEyeVertexBuffer.count, 1, 1);
     }
 
     public void Dispose(){
         facePipeline.Dispose();
+        leftEyeVertexBuffer.Dispose();
+        rightEyeVertexBuffer.Dispose();
     }
 }
 
