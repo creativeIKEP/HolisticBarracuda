@@ -1,0 +1,27 @@
+{
+  "author": {
+    "name": "IKEP",
+    "url": "https://ikep.jp"
+  },
+  "name": "jp.ikep.mediapipe.holistic",
+  "displayName": "HolisticBarracuda",
+  "description": "Mediapipe Holistic for Unity Barracuda.",
+  "version": "1.0.0",
+  "unity": "2020.3",
+  "unityRelease": "11f1",
+  "keywords": [
+    "unity",
+    "Barracuda",
+    "Mediapipe",
+    "Pose",
+    "Holistic"
+  ],
+  "dependencies": {
+    "com.unity.barracuda": "2.0.0-pre.3",
+    "jp.keijiro.mediapipe.blazeface": "1.1.1",
+    "jp.keijiro.mediapipe.facelandmark": "1.0.0",
+    "jp.keijiro.mediapipe.iris": "1.1.0",
+    "jp.keijiro.mediapipe.blazepalm": "1.0.2",
+    "jp.keijiro.mediapipe.handlandmark": "1.0.1"
+  }
+}
