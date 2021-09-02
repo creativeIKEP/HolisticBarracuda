@@ -37,7 +37,7 @@ void HandRegionDetect(uint3 id : SV_DispatchThreadID)
 
     // bounding box
     float2 boundingBoxCenter = middle;
-    float boundingBoxSize = boxSize * 3.0f;
+    float boundingBoxSize = boxSize * 2.0f;
 
     // bounding box angle
     float target = PI * 0.5;

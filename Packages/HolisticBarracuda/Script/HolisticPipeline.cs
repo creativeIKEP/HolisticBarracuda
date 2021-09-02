@@ -23,11 +23,10 @@ public class HolisticPipeline : System.IDisposable
     FacePipeline facePipeline;
     HandLandmarkDetector handLandmarkDetector;
     ComputeShader cs;
-    
     ComputeBuffer leftHandRegion;
+    RenderTexture leftHandCropTexture;
     ComputeBuffer rightHandRegion;
-    public RenderTexture leftHandCropTexture;
-    public RenderTexture rightHandCropTexture;
+    RenderTexture rightHandCropTexture;
 
 
     public HolisticPipeline(HolisticResource resource, BlazePoseModel blazePoseModel = BlazePoseModel.full){
@@ -117,11 +116,11 @@ public class HolisticPipeline : System.IDisposable
 
         handLandmarkDetector.Dispose();
         leftHandRegion.Dispose();
-        rightHandRegion.Dispose();
-        leftHandVertexBuffer.Dispose();
-        rightHandVertexBuffer.Dispose();
         leftHandCropTexture.Release();
+        leftHandVertexBuffer.Dispose();
+        rightHandRegion.Dispose();
         rightHandCropTexture.Release();
+        rightHandVertexBuffer.Dispose();
     }
 }
 

@@ -14,7 +14,6 @@ public class Visuallizer : MonoBehaviour
     [SerializeField] Shader faceMeshShader;
     [SerializeField] Shader handShader;
     [SerializeField] HolisticResource resource;
-    [SerializeField] RawImage hoge;
 
     HolisticPipeline holisticPipeline;
     Material poseMaterial;
@@ -59,8 +58,6 @@ public class Visuallizer : MonoBehaviour
     }
 
     void PoseRender(){
-        hoge.texture = holisticPipeline.leftHandCropTexture;
-
         var w = image.rectTransform.rect.width;
         var h = image.rectTransform.rect.height;
 
