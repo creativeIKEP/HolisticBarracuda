@@ -12,11 +12,14 @@ public class Visuallizer : MonoBehaviour
     [SerializeField] Shader poseShader;
     [SerializeField, Range(0, 1)] float humanExistThreshold = 0.5f;
     [SerializeField] Shader faceMeshShader;
+    [SerializeField] Shader handShader;
     [SerializeField] HolisticResource resource;
+    [SerializeField] RawImage hoge;
 
     HolisticPipeline holisticPipeline;
     Material poseMaterial;
     Material faceMeshMaterial;
+    Material handMaterial;
 
     // Lines count of body's topology.
     const int BODY_LINE_NUM = 35;
@@ -37,6 +40,9 @@ public class Visuallizer : MonoBehaviour
         holisticPipeline = new HolisticPipeline(resource);
         poseMaterial = new Material(poseShader);
         faceMeshMaterial = new Material(faceMeshShader);
+        handMaterial = new Material(handShader);
+        handMaterial.SetBuffer("_leftKeyPoints",holisticPipeline.leftHandVertexBuffer);
+        handMaterial.SetBuffer("_rightKeyPoints", holisticPipeline.rightHandVertexBuffer);
     }
 
     void LateUpdate()
@@ -48,9 +54,13 @@ public class Visuallizer : MonoBehaviour
     void OnRenderObject(){
         PoseRender();
         FaceRender();
+        HandRender(false);
+        HandRender(true);
     }
 
     void PoseRender(){
+        hoge.texture = holisticPipeline.leftHandCropTexture;
+
         var w = image.rectTransform.rect.width;
         var h = image.rectTransform.rect.height;
 
@@ -91,7 +101,22 @@ public class Visuallizer : MonoBehaviour
         Graphics.DrawProceduralNow(MeshTopology.Lines, 64, 1);
     }
 
+    void HandRender(bool isRight){
+        handMaterial.SetInt("_isRight", isRight?1:0);
+
+        // Key point circles
+        handMaterial.SetPass(0);
+        Graphics.DrawProceduralNow(MeshTopology.Triangles, 96, 21);
+
+        // Skeleton lines
+        handMaterial.SetPass(1);
+        Graphics.DrawProceduralNow(MeshTopology.Lines, 2, 4 * 5 + 1);
+    }
+
     void OnDestroy(){
         holisticPipeline.Dispose();
+        Destroy(poseMaterial);
+        Destroy(faceMeshMaterial);
+        Destroy(handMaterial);
     }
 }

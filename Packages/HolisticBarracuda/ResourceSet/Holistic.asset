@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   blazePoseResource: {fileID: 11400000, guid: f19b49e33e0e57347b280b0184fcb7cb, type: 2}
   faceMeshResource: {fileID: 11400000, guid: 7dea2325d80e6af469e5633ac60efaea, type: 2}
+  handResource: {fileID: 11400000, guid: 1edc0d74bd97543caa8c7f0a11b637f1, type: 2}
   cs: {fileID: 7200000, guid: 0e4a93cccc092d04582737c9cb773ce8, type: 3}

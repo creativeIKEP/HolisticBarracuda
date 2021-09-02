@@ -1,4 +1,4 @@
-﻿Shader "Hidden/BlazePose/Visualizer"
+﻿Shader "Hidden/HolisticBarracuda/PoseVisualizer"
 {
     CGINCLUDE
 

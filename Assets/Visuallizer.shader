@@ -1,4 +1,4 @@
-Shader "Hidden/MediaPipe/FaceMesh//Visualizer"
+Shader "Hidden/HolisticBarracuda/Visualizer"
 {
     CGINCLUDE
 

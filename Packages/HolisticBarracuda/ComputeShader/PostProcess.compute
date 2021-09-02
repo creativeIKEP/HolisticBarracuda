@@ -1,11 +1,129 @@
 #pragma kernel IrisRecon
+#pragma kernel HandRegionDetect
+#pragma kernel HandCrop
+#pragma kernel post_kernel
+
+#include "HandRegion.hlsl"
+#include "LowPassFilter.hlsl"
+#include "Misc.hlsl"
 
 StructuredBuffer<float4> _IrisVertices;
 float4x4 _irisCropMatrix;
 RWStructuredBuffer<float4> _IrisReconVertices;
 
 [numthreads(1,1,1)]
-void IrisRecon (uint3 id : SV_DispatchThreadID)
+void IrisRecon(uint3 id : SV_DispatchThreadID)
 {
     _IrisReconVertices[id.x] = mul(_irisCropMatrix, _IrisVertices[id.x]);
+}
+
+
+int _isRight;
+float2 _imageSize;
+float _bboxDt;
+StructuredBuffer<float4> _poseInput;
+RWStructuredBuffer<HandRegion> _bboxRegion;
+
+[numthreads(1,1,1)]
+void HandRegionDetect(uint3 id : SV_DispatchThreadID)
+{
+    float4 wrist = _poseInput[15 + _isRight];
+    float4 index = _poseInput[19 + _isRight];
+    float4 pinky = _poseInput[17 + _isRight];
+    // Estimate middle finger.
+    float2 middle = (2.0f * index.xy + pinky.xy) / 3.0f;
+    // Bounding box size as double distance from middle finger to wrist.
+    float boxSize = 2.0f * sqrt((middle.x - wrist.x) * (middle.x - wrist.x) + (middle.y - wrist.y) * (middle.y - wrist.y));
+
+    // bounding box
+    float2 boundingBoxCenter = middle;
+    float boundingBoxSize = boxSize * 3.0f;
+
+    // bounding box angle
+    float target = PI * 0.5;
+    float2 up = middle - wrist.xy;
+    float boundingBoxAngle = target - atan2(-up.y, up.x);
+
+    const float4 box = float4(boundingBoxCenter, boundingBoxSize, boundingBoxAngle);
+    
+     // Hand region structure. We're going to update this.
+    HandRegion region = _bboxRegion[0];
+
+    // Low pass filter parameters and input vector
+    const float3 lpf_params = float3(2, 1.5f, _bboxDt);
+    region.dBox = lpf_Step_dx(box, region.box, region.dBox, lpf_params);
+    region.box = lpf_Step_x(box, region.box, region.dBox, lpf_params);
+
+    // Region crop matrix update
+    float4x4 m1 = makeTranslationMatrix(region.box.xy - region.box.z / 2);
+    float4x4 m2 = makeScalingMatrix(region.box.z);
+    float4x4 m3 = makeTranslationMatrix(0.5);
+    float4x4 m4 = makeRotationMatrix(region.box.w);
+    float4x4 m5 = makeTranslationMatrix(-0.5);
+    region.cropMatrix = mul(mul(mul(mul(m1, m2), m3), m4), m5);
+
+    // Compute buffer update
+    _bboxRegion[0] = region;
+}
+
+
+float2 _spadScale;
+int _handCropImageSize;
+sampler2D _handCropInput;
+StructuredBuffer<HandRegion> _handCropRegion;
+RWTexture2D<float4> _handCropOutput;
+
+[numthreads(8, 8, 1)]
+void HandCrop(uint2 id : SV_DispatchThreadID)
+{
+    float4x4 xform = _handCropRegion[0].cropMatrix;
+
+    // UV coordinates
+    float2 uv = (id + 0.5) / _handCropImageSize;
+    uv.y = 1 - uv.y;
+    uv = mul(xform, float4(uv, 0, 1)).xy;
+
+    // De-letterboxing
+    uv = (uv - 0.5) * _spadScale + 0.5;
+
+    // UV gradients
+    float2 duv_dx = mul(xform, float4(1.0 / _handCropImageSize, 0, 0, 0)).xy;
+    float2 duv_dy = mul(xform, float4(0, -1.0 / _handCropImageSize, 0, 0)).xy;
+
+    // Texture sample
+    float3 rgb = tex2Dgrad(_handCropInput, uv, duv_dx, duv_dy).rgb;
+
+    _handCropOutput[id] = float4(rgb, 1);
+}
+
+ 
+#define POST_KEYPOINT_COUNT 21
+
+float _handPostDt;
+float _handPostScale;
+
+StructuredBuffer<float4> _handPostInput;
+StructuredBuffer<HandRegion> _handPostRegion;
+
+RWStructuredBuffer<float4> _handPostOutput;
+
+[numthreads(POST_KEYPOINT_COUNT, 1, 1)]
+void post_kernel(uint id : SV_DispatchThreadID)
+{
+    HandRegion region = _handPostRegion[0];
+
+    float3 x = _handPostInput[id + 1].xyz;
+    x.y = 1.0f - x.y;
+    float3 p_x = _handPostOutput[id].xyz;
+    float3 p_dx = _handPostOutput[id + POST_KEYPOINT_COUNT].xyz;
+
+    x = mul(region.cropMatrix, float4(x, 1)).xyz;
+    x.xy = (x.xy - 0.5) * _handPostScale;
+
+    float3 lpf_params = float3(30, 1.5, _handPostDt);
+    float3 dx = lpf_Step_dx(x, p_x, p_dx, lpf_params);
+    x = lpf_Step_x(x, p_x, dx, lpf_params);
+
+    _handPostOutput[id] = float4(x, 1);
+    _handPostOutput[id + POST_KEYPOINT_COUNT] = float4(dx, 1);
 }
