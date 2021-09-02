@@ -1,5 +1,4 @@
 using UnityEngine;
-using Unity.Barracuda;
 
 namespace MediaPipe.FaceMesh {
 
