@@ -429,7 +429,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   webCamName: c922 Pro Stream Webcam
-  webCamResolution: {x: 1080, y: 1080}
+  webCamResolution: {x: 1280, y: 720}
   staticInput: {fileID: 0}
 --- !u!4 &1716695273
 Transform:

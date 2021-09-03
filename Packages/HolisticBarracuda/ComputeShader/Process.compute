@@ -20,7 +20,6 @@ void IrisRecon(uint3 id : SV_DispatchThreadID)
 
 
 int _isRight;
-float2 _imageSize;
 float _bboxDt;
 StructuredBuffer<float4> _poseInput;
 RWStructuredBuffer<HandRegion> _bboxRegion;
@@ -68,7 +67,6 @@ void HandRegionDetect(uint3 id : SV_DispatchThreadID)
 }
 
 
-float2 _spadScale;
 int _handCropImageSize;
 sampler2D _handCropInput;
 StructuredBuffer<HandRegion> _handCropRegion;
@@ -84,9 +82,6 @@ void HandCrop(uint2 id : SV_DispatchThreadID)
     uv.y = 1 - uv.y;
     uv = mul(xform, float4(uv, 0, 1)).xy;
 
-    // De-letterboxing
-    uv = (uv - 0.5) * _spadScale + 0.5;
-
     // UV gradients
     float2 duv_dx = mul(xform, float4(1.0 / _handCropImageSize, 0, 0, 0)).xy;
     float2 duv_dy = mul(xform, float4(0, -1.0 / _handCropImageSize, 0, 0)).xy;
@@ -101,7 +96,6 @@ void HandCrop(uint2 id : SV_DispatchThreadID)
 #define HAND_KEYPOINT_COUNT 21
 
 float _handPostDt;
-float _handPostScale;
 StructuredBuffer<float4> _handPostInput;
 StructuredBuffer<HandRegion> _handPostRegion;
 RWStructuredBuffer<float4> _handPostOutput;
@@ -117,7 +111,6 @@ void HandKeyPointPost(uint id : SV_DispatchThreadID)
     float3 p_dx = _handPostOutput[id + HAND_KEYPOINT_COUNT].xyz;
 
     x = mul(region.cropMatrix, float4(x, 1)).xyz;
-    x.xy = (x.xy - 0.5) * _handPostScale;
 
     float3 lpf_params = float3(30, 1.5, _handPostDt);
     float3 dx = lpf_Step_dx(x, p_x, p_dx, lpf_params);

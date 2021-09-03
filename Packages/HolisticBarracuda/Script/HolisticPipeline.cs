@@ -75,21 +75,14 @@ public class HolisticPipeline : System.IDisposable
     }
 
     void HandProcess(Texture inputTexture, bool isRight){
-        // Letterboxing scale factor
-        var scale = new Vector2
-          (Mathf.Max((float)inputTexture.height / inputTexture.width, 1),
-           Mathf.Max(1, (float)inputTexture.width / inputTexture.height));
-
         // Calculate hand region with pose landmark
         cs.SetInt("_isRight", isRight?1:0);
-        cs.SetVector("_imageSize", new Vector2(inputTexture.width, inputTexture.height));
         cs.SetFloat("_bboxDt", Time.deltaTime);
         cs.SetBuffer(1, "_poseInput", blazePoseDetecter.outputBuffer);
         cs.SetBuffer(1, "_bboxRegion", isRight ? rightHandRegion : leftHandRegion);
         cs.Dispatch(1, 1, 1, 1);
 
         // Hand region cropping
-        cs.SetVector("_spadScale", scale);
         cs.SetInt("_handCropImageSize", handCropImageSize);
         cs.SetTexture(2, "_handCropInput", inputTexture);
         cs.SetBuffer(2, "_handCropRegion", isRight ? rightHandRegion : leftHandRegion);
@@ -101,7 +94,6 @@ public class HolisticPipeline : System.IDisposable
 
         // Key point postprocess
         cs.SetFloat("_handPostDt", Time.deltaTime);
-        cs.SetFloat("_handPostScale", scale.y);
         cs.SetBuffer(3, "_handPostInput", handLandmarkDetector.OutputBuffer);
         cs.SetBuffer(3, "_handPostRegion", isRight ? rightHandRegion : leftHandRegion);
         cs.SetBuffer(3, "_handPostOutput", isRight ? rightHandVertexBuffer : leftHandVertexBuffer);

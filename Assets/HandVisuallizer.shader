@@ -34,6 +34,7 @@ Shader "Hidden/HolisticBarracuda/HandVisuallizer"
 
         float theta = (fan + segment - 1) * UNITY_PI / 16;
         float radius = (segment > 0) * 0.08 * (max(0, -p.z) + 0.1);
+        p.xy -= 0.5;
         p.xy += float2(cos(theta), sin(theta)) * radius;
 
         position = UnityObjectToClipPos(float4(p, 1));
@@ -56,7 +57,8 @@ Shader "Hidden/HolisticBarracuda/HandVisuallizer"
 
         i = max(segment, vid) == 0 ? root : i;
 
-        float3 p = _isRight ? _rightKeyPoints[iid].xyz : _leftKeyPoints[iid].xyz;
+        float3 p = _isRight ? _rightKeyPoints[i].xyz : _leftKeyPoints[i].xyz;
+        p.xy -= 0.5;
 
         position = UnityObjectToClipPos(float4(p, 1));
         color = float4(DepthToColor(p.z), 0.8);
