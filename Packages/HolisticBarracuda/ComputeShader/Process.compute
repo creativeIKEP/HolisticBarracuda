@@ -1,20 +1,21 @@
 #pragma kernel IrisRecon
 #pragma kernel HandRegionDetect
 #pragma kernel HandCrop
-#pragma kernel post_kernel
+#pragma kernel HandKeyPointPost
 
 #include "HandRegion.hlsl"
 #include "LowPassFilter.hlsl"
 #include "Misc.hlsl"
 
-StructuredBuffer<float4> _IrisVertices;
+
+StructuredBuffer<float4> _irisVertices;
 float4x4 _irisCropMatrix;
-RWStructuredBuffer<float4> _IrisReconVertices;
+RWStructuredBuffer<float4> _irisReconVertices;
 
 [numthreads(1,1,1)]
 void IrisRecon(uint3 id : SV_DispatchThreadID)
 {
-    _IrisReconVertices[id.x] = mul(_irisCropMatrix, _IrisVertices[id.x]);
+    _irisReconVertices[id.x] = mul(_irisCropMatrix, _irisVertices[id.x]);
 }
 
 
@@ -97,25 +98,23 @@ void HandCrop(uint2 id : SV_DispatchThreadID)
 }
 
  
-#define POST_KEYPOINT_COUNT 21
+#define HAND_KEYPOINT_COUNT 21
 
 float _handPostDt;
 float _handPostScale;
-
 StructuredBuffer<float4> _handPostInput;
 StructuredBuffer<HandRegion> _handPostRegion;
-
 RWStructuredBuffer<float4> _handPostOutput;
 
-[numthreads(POST_KEYPOINT_COUNT, 1, 1)]
-void post_kernel(uint id : SV_DispatchThreadID)
+[numthreads(HAND_KEYPOINT_COUNT, 1, 1)]
+void HandKeyPointPost(uint id : SV_DispatchThreadID)
 {
     HandRegion region = _handPostRegion[0];
 
     float3 x = _handPostInput[id + 1].xyz;
     x.y = 1.0f - x.y;
     float3 p_x = _handPostOutput[id].xyz;
-    float3 p_dx = _handPostOutput[id + POST_KEYPOINT_COUNT].xyz;
+    float3 p_dx = _handPostOutput[id + HAND_KEYPOINT_COUNT].xyz;
 
     x = mul(region.cropMatrix, float4(x, 1)).xyz;
     x.xy = (x.xy - 0.5) * _handPostScale;
@@ -125,5 +124,5 @@ void post_kernel(uint id : SV_DispatchThreadID)
     x = lpf_Step_x(x, p_x, dx, lpf_params);
 
     _handPostOutput[id] = float4(x, 1);
-    _handPostOutput[id + POST_KEYPOINT_COUNT] = float4(dx, 1);
+    _handPostOutput[id + HAND_KEYPOINT_COUNT] = float4(dx, 1);
 }

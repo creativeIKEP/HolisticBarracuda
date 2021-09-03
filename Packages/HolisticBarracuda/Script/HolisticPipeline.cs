@@ -18,6 +18,7 @@ public class HolisticPipeline : System.IDisposable
     public ComputeBuffer rightHandVertexBuffer;
 
     const int handCropImageSize = HandLandmarkDetector.ImageSize;
+    const int handVertexCount = HandLandmarkDetector.VertexCount;
 
     BlazePoseDetecter blazePoseDetecter;
     FacePipeline facePipeline;
@@ -42,12 +43,12 @@ public class HolisticPipeline : System.IDisposable
         leftHandCropTexture = new RenderTexture(handCropImageSize, handCropImageSize, 0, RenderTextureFormat.ARGB32);
         leftHandCropTexture.enableRandomWrite = true;
         leftHandCropTexture.Create();
-        leftHandVertexBuffer = new ComputeBuffer(HandLandmarkDetector.VertexCount * 2, sizeof(float) * 4);
+        leftHandVertexBuffer = new ComputeBuffer(handVertexCount * 2, sizeof(float) * 4);
         rightHandRegion = new ComputeBuffer(1, sizeof(float) * 24);
         rightHandCropTexture = new RenderTexture(handCropImageSize, handCropImageSize, 0, RenderTextureFormat.ARGB32);
         rightHandCropTexture.enableRandomWrite = true;
         rightHandCropTexture.Create();
-        rightHandVertexBuffer = new ComputeBuffer(HandLandmarkDetector.VertexCount * 2, sizeof(float) * 4);
+        rightHandVertexBuffer = new ComputeBuffer(handVertexCount * 2, sizeof(float) * 4);
     }
 
     public void ProcessImage(Texture inputTexture, BlazePoseModel blazePoseModel = BlazePoseModel.full){
@@ -62,14 +63,14 @@ public class HolisticPipeline : System.IDisposable
         
         // Reconstruct left eye rotation
         cs.SetMatrix("_irisCropMatrix", facePipeline.LeftEyeCropMatrix);
-        cs.SetBuffer(0, "_IrisVertices", facePipeline.RawLeftEyeVertexBuffer);
-        cs.SetBuffer(0, "_IrisReconVertices", leftEyeVertexBuffer);
+        cs.SetBuffer(0, "_irisVertices", facePipeline.RawLeftEyeVertexBuffer);
+        cs.SetBuffer(0, "_irisReconVertices", leftEyeVertexBuffer);
         cs.Dispatch(0, facePipeline.RawLeftEyeVertexBuffer.count, 1, 1);
 
         // Reconstruct right eye rotation
         cs.SetMatrix("_irisCropMatrix", facePipeline.RightEyeCropMatrix);
-        cs.SetBuffer(0, "_IrisVertices", facePipeline.RawRightEyeVertexBuffer);
-        cs.SetBuffer(0, "_IrisReconVertices", rightEyeVertexBuffer);
+        cs.SetBuffer(0, "_irisVertices", facePipeline.RawRightEyeVertexBuffer);
+        cs.SetBuffer(0, "_irisReconVertices", rightEyeVertexBuffer);
         cs.Dispatch(0, facePipeline.RawRightEyeVertexBuffer.count, 1, 1);
     }
 
@@ -79,7 +80,7 @@ public class HolisticPipeline : System.IDisposable
           (Mathf.Max((float)inputTexture.height / inputTexture.width, 1),
            Mathf.Max(1, (float)inputTexture.width / inputTexture.height));
 
-        // left hand process
+        // Calculate hand region with pose landmark
         cs.SetInt("_isRight", isRight?1:0);
         cs.SetVector("_imageSize", new Vector2(inputTexture.width, inputTexture.height));
         cs.SetFloat("_bboxDt", Time.deltaTime);
