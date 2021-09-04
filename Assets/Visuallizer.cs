@@ -99,7 +99,10 @@ public class Visuallizer : MonoBehaviour
     }
 
     void HandRender(bool isRight){
+        var w = image.rectTransform.rect.width;
+        var h = image.rectTransform.rect.height;
         handMaterial.SetInt("_isRight", isRight?1:0);
+        handMaterial.SetVector("_uiScale", new Vector2(w, h));
 
         // Key point circles
         handMaterial.SetPass(0);
