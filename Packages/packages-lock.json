@@ -88,6 +88,7 @@
         "jp.keijiro.mediapipe.blazeface": "1.1.1",
         "jp.keijiro.mediapipe.facelandmark": "1.0.0",
         "jp.keijiro.mediapipe.iris": "1.1.0",
+        "jp.keijiro.mediapipe.blazepalm": "1.0.2",
         "jp.keijiro.mediapipe.handlandmark": "1.0.1"
       }
     },
@@ -115,6 +116,15 @@
       "source": "registry",
       "dependencies": {
         "com.unity.barracuda": "1.3.3-preview"
+      },
+      "url": "https://registry.npmjs.com"
+    },
+    "jp.keijiro.mediapipe.blazepalm": {
+      "version": "1.0.2",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.barracuda": "1.4.0-preview"
       },
       "url": "https://registry.npmjs.com"
     },

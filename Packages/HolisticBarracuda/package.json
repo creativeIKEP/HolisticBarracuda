@@ -21,6 +21,7 @@
     "jp.keijiro.mediapipe.blazeface": "1.1.1",
     "jp.keijiro.mediapipe.facelandmark": "1.0.0",
     "jp.keijiro.mediapipe.iris": "1.1.0",
+    "jp.keijiro.mediapipe.blazepalm": "1.0.2",
     "jp.keijiro.mediapipe.handlandmark": "1.0.1"
   }
 }

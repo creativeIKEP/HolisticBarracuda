@@ -14,6 +14,8 @@ public class Visuallizer : MonoBehaviour
     [SerializeField] Shader faceMeshShader;
     [SerializeField] Shader handShader;
     [SerializeField] HolisticResource resource;
+    [SerializeField] RawImage hoge;
+    [SerializeField] RawImage hoge2;
 
     HolisticPipeline holisticPipeline;
     Material poseMaterial;
@@ -48,6 +50,8 @@ public class Visuallizer : MonoBehaviour
     {
         image.texture = webCamInput.inputImageTexture;
         holisticPipeline.ProcessImage(webCamInput.inputImageTexture);
+        hoge.texture = holisticPipeline.leftHandCropTexture;
+        hoge2.texture = holisticPipeline.rightHandCropTexture;
     }
 
     void OnRenderObject(){
