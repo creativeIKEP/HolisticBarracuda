@@ -27,7 +27,7 @@ Shader "Hidden/HolisticBarracuda/HandVisuallizer"
         uint segment = vid % 3;
 
         float theta = (fan + segment - 1) * UNITY_PI / 16;
-        float radius = (segment > 0) * 0.08 * (max(0, -p.z) + 0.1);
+        float radius = (segment > 0) * 0.008;// * (max(0, -p.z) + 0.1);
         p.xy += float2(cos(theta), sin(theta)) * radius;
         p.xy = (2 * p.xy - 1) * _uiScale / _ScreenParams.xy;
 
