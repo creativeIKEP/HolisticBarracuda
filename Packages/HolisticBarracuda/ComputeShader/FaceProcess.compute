@@ -1,0 +1,28 @@
+#pragma kernel FaceRecon
+#pragma kernel IrisRecon
+
+
+float2 _spadScale;
+StructuredBuffer<float4> _faceVertices;
+RWStructuredBuffer<float4> _faceReconVertices;
+
+[numthreads(1,1,1)]
+void FaceRecon(uint3 id : SV_DispatchThreadID)
+{ 
+    float4 p = _faceVertices[id.x];
+    p.xy = (p.xy - 0.5) * _spadScale + 0.5;
+    _faceReconVertices[id.x] = p;
+}
+
+
+StructuredBuffer<float4> _irisVertices;
+float4x4 _irisCropMatrix;
+RWStructuredBuffer<float4> _irisReconVertices;
+
+[numthreads(1,1,1)]
+void IrisRecon(uint3 id : SV_DispatchThreadID)
+{ 
+    float4 p = mul(_irisCropMatrix, _irisVertices[id.x]);
+    p.xy = (p.xy - 0.5) * _spadScale + 0.5;
+    _irisReconVertices[id.x] = p;
+}
