@@ -31,6 +31,13 @@ MonoBehaviour:
     - jp.keijiro
     m_IsDefault: 0
     m_Capabilities: 0
+  - m_Id: scoped:creativeikep
+    m_Name: creativeikep
+    m_Url: https://registry.npmjs.com
+    m_Scopes:
+    - jp.ikep
+    m_IsDefault: 0
+    m_Capabilities: 0
   m_UserSelectedRegistryName: 
   m_UserAddingNewScopedRegistry: 0
   m_RegistryInfoDraft:
