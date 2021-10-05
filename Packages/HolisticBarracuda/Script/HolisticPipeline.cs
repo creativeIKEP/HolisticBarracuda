@@ -137,13 +137,15 @@ public class HolisticPipeline : System.IDisposable
         // Reconstruct left eye rotation
         faceCs.SetMatrix("_irisCropMatrix", facePipeline.LeftEyeCropMatrix);
         faceCs.SetBuffer(1, "_irisVertices", facePipeline.RawLeftEyeVertexBuffer);
-        faceCs.SetBuffer(1, "_irisReconVertices", leftEyeVertexBuffer);
+        // facePipeline output is fliped.
+        faceCs.SetBuffer(1, "_irisReconVertices", rightEyeVertexBuffer);
         faceCs.Dispatch(1, eyeVertexCount, 1, 1);
 
         // Reconstruct right eye rotation
         faceCs.SetMatrix("_irisCropMatrix", facePipeline.RightEyeCropMatrix);
         faceCs.SetBuffer(1, "_irisVertices", facePipeline.RawRightEyeVertexBuffer);
-        faceCs.SetBuffer(1, "_irisReconVertices", rightEyeVertexBuffer);
+        // facePipeline output is fliped.
+        faceCs.SetBuffer(1, "_irisReconVertices", leftEyeVertexBuffer);
         faceCs.Dispatch(1, eyeVertexCount, 1, 1);
     }
 
