@@ -1,6 +1,8 @@
 using UnityEngine;
 using Mediapipe.BlazePose;
 using MediaPipe.FaceMesh;
+using MediaPipe.FaceLandmark;
+using MediaPipe.Iris;
 using MediaPipe.BlazePalm;
 using MediaPipe.HandLandmark;
 
@@ -12,15 +14,21 @@ public class HolisticPipeline : System.IDisposable
     public int poseVertexCount => blazePoseDetecter.vertexCount;
     public ComputeBuffer poseLandmarkBuffer => blazePoseDetecter.outputBuffer;
     public ComputeBuffer poseLandmarkWorldBuffer => blazePoseDetecter.worldLandmarkBuffer;
+    
+    public int faceVertexCount => FaceLandmarkDetector.VertexCount;
     public ComputeBuffer faceVertexBuffer;
+
+    public int eyeVertexCount => EyeLandmarkDetector.VertexCount;
     public ComputeBuffer leftEyeVertexBuffer;
     public ComputeBuffer rightEyeVertexBuffer;
+
+    public int handVertexCount => HandLandmarkDetector.VertexCount;
     public ComputeBuffer leftHandVertexBuffer;
     public ComputeBuffer rightHandVertexBuffer;
 
+
     const int letterboxWidth = 128;
     const int handCropImageSize = HandLandmarkDetector.ImageSize;
-    const int handVertexCount = HandLandmarkDetector.VertexCount;
 
     ComputeShader commonCs;
     ComputeShader faceCs;
@@ -34,6 +42,8 @@ public class HolisticPipeline : System.IDisposable
     ComputeBuffer leftHandRegionFromPose;
     ComputeBuffer rightHandRegionFromPose;
     ComputeBuffer handCropBuffer;
+    ComputeBuffer deltaLeftHandVertexBuffer;
+    ComputeBuffer deltaRightHandVertexBuffer;
 
 
     public HolisticPipeline(HolisticResource resource, BlazePoseModel blazePoseModel = BlazePoseModel.full){
@@ -46,12 +56,12 @@ public class HolisticPipeline : System.IDisposable
         palmDetector = new PalmDetector(resource.blazePalmResource);
         handLandmarkDetector = new HandLandmarkDetector(resource.handLandmarkResource);
 
-        faceVertexBuffer = new ComputeBuffer(facePipeline.RefinedFaceVertexBuffer.count, sizeof(float) * 4);
-        leftEyeVertexBuffer = new ComputeBuffer(facePipeline.RawLeftEyeVertexBuffer.count, sizeof(float) * 4);
-        rightEyeVertexBuffer = new ComputeBuffer(facePipeline.RawRightEyeVertexBuffer.count, sizeof(float) * 4);
+        faceVertexBuffer = new ComputeBuffer(faceVertexCount, sizeof(float) * 4);
+        leftEyeVertexBuffer = new ComputeBuffer(eyeVertexCount, sizeof(float) * 4);
+        rightEyeVertexBuffer = new ComputeBuffer(eyeVertexCount, sizeof(float) * 4);
 
-        leftHandVertexBuffer = new ComputeBuffer(handVertexCount * 2, sizeof(float) * 4);
-        rightHandVertexBuffer = new ComputeBuffer(handVertexCount * 2, sizeof(float) * 4);
+        leftHandVertexBuffer = new ComputeBuffer(handVertexCount + 1, sizeof(float) * 4);
+        rightHandVertexBuffer = new ComputeBuffer(handVertexCount + 1, sizeof(float) * 4);
 
         letterBoxTexture = new RenderTexture(letterboxWidth, letterboxWidth, 0, RenderTextureFormat.ARGB32);
         letterBoxTexture.enableRandomWrite = true;
@@ -61,6 +71,8 @@ public class HolisticPipeline : System.IDisposable
         leftHandRegionFromPose = new ComputeBuffer(1, sizeof(float) * 24);
         rightHandRegionFromPose = new ComputeBuffer(1, sizeof(float) * 24);
         handCropBuffer = new ComputeBuffer(handCropImageSize * handCropImageSize * 3, sizeof(float));
+        deltaLeftHandVertexBuffer = new ComputeBuffer(handVertexCount, sizeof(float) * 4);
+        deltaRightHandVertexBuffer = new ComputeBuffer(handVertexCount, sizeof(float) * 4);
     }
 
     public void Dispose(){
@@ -83,6 +95,8 @@ public class HolisticPipeline : System.IDisposable
         leftHandRegionFromPose.Dispose();
         rightHandRegionFromPose.Dispose();
         handCropBuffer.Dispose();
+        deltaLeftHandVertexBuffer.Dispose();
+        deltaRightHandVertexBuffer.Dispose();
     }
 
     public void ProcessImage(
@@ -118,19 +132,19 @@ public class HolisticPipeline : System.IDisposable
         faceCs.SetVector("_spadScale", spadScale);
         faceCs.SetBuffer(0, "_faceVertices", facePipeline.RefinedFaceVertexBuffer);
         faceCs.SetBuffer(0, "_faceReconVertices", faceVertexBuffer);
-        faceCs.Dispatch(0, facePipeline.RefinedFaceVertexBuffer.count, 1, 1);
+        faceCs.Dispatch(0, faceVertexCount, 1, 1);
         
         // Reconstruct left eye rotation
         faceCs.SetMatrix("_irisCropMatrix", facePipeline.LeftEyeCropMatrix);
         faceCs.SetBuffer(1, "_irisVertices", facePipeline.RawLeftEyeVertexBuffer);
         faceCs.SetBuffer(1, "_irisReconVertices", leftEyeVertexBuffer);
-        faceCs.Dispatch(1, facePipeline.RawLeftEyeVertexBuffer.count, 1, 1);
+        faceCs.Dispatch(1, eyeVertexCount, 1, 1);
 
         // Reconstruct right eye rotation
         faceCs.SetMatrix("_irisCropMatrix", facePipeline.RightEyeCropMatrix);
         faceCs.SetBuffer(1, "_irisVertices", facePipeline.RawRightEyeVertexBuffer);
         faceCs.SetBuffer(1, "_irisReconVertices", rightEyeVertexBuffer);
-        faceCs.Dispatch(1, facePipeline.RawRightEyeVertexBuffer.count, 1, 1);
+        faceCs.Dispatch(1, eyeVertexCount, 1, 1);
     }
 
     void HandProcess(Texture inputTexture, Texture letterBoxTexture, Vector2 spadScale){
@@ -183,6 +197,7 @@ public class HolisticPipeline : System.IDisposable
             handCs.SetBuffer(3, "_handPostInput", handLandmarkDetector.OutputBuffer);
             handCs.SetBuffer(3, "_handPostRegion", handsRegionFromPalm);
             handCs.SetBuffer(3, "_handPostOutput", isRight ? rightHandVertexBuffer : leftHandVertexBuffer);
+            handCs.SetBuffer(3, "_handPostDeltaOutput", isRight ? deltaRightHandVertexBuffer : deltaLeftHandVertexBuffer);
             handCs.Dispatch(3, 1, 1, 1);
         }
 
@@ -218,6 +233,7 @@ public class HolisticPipeline : System.IDisposable
         handCs.SetBuffer(3, "_handPostInput", handLandmarkDetector.OutputBuffer);
         handCs.SetBuffer(3, "_handPostRegion", isRight ? rightHandRegionFromPose : leftHandRegionFromPose);
         handCs.SetBuffer(3, "_handPostOutput", isRight ? rightHandVertexBuffer : leftHandVertexBuffer);
+        handCs.SetBuffer(3, "_handPostDeltaOutput", isRight ? deltaRightHandVertexBuffer : deltaLeftHandVertexBuffer);
         handCs.Dispatch(3, 1, 1, 1);
     }
 }

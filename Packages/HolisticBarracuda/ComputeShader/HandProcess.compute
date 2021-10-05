@@ -147,16 +147,22 @@ float _handPostDt;
 StructuredBuffer<float4> _handPostInput;
 StructuredBuffer<HandRegion> _handPostRegion;
 RWStructuredBuffer<float4> _handPostOutput;
+RWStructuredBuffer<float4> _handPostDeltaOutput;
 
-[numthreads(HAND_KEYPOINT_COUNT, 1, 1)]
+[numthreads(HAND_KEYPOINT_COUNT + 1, 1, 1)]
 void HandsKeyPointPost(uint id : SV_DispatchThreadID)
 {
+    if(id == HAND_KEYPOINT_COUNT){
+        _handPostOutput[HAND_KEYPOINT_COUNT] = _handPostInput[0];
+        return;
+    }
+
     HandRegion region = _handPostRegion[_handRegionIndex];
 
     float3 x = _handPostInput[id + 1].xyz;
     if(!_isVerticalFlip) x.y = 1.0f - x.y;
     float3 p_x = _handPostOutput[id].xyz;
-    float3 p_dx = _handPostOutput[id + HAND_KEYPOINT_COUNT].xyz;
+    float3 p_dx = _handPostDeltaOutput[id].xyz;
 
     x = mul(region.cropMatrix, float4(x, 1)).xyz;
     x.xy = (x.xy - 0.5) * _spadScale + 0.5;
@@ -166,5 +172,5 @@ void HandsKeyPointPost(uint id : SV_DispatchThreadID)
     x = lpf_Step_x(x, p_x, dx, lpf_params);
 
     _handPostOutput[id] = float4(x, 1);
-    _handPostOutput[id + HAND_KEYPOINT_COUNT] = float4(dx, 1);
+    _handPostDeltaOutput[id] = float4(dx, 1);
 }
