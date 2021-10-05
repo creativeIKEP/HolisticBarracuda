@@ -2,11 +2,10 @@
     "name": "MediaPipe.FaceMesh",
     "rootNamespace": "",
     "references": [
+        "GUID:d8b63aba1907145bea998dd612889d6b",
         "GUID:b4eac0e37615671478e07f1f77458f98",
         "GUID:796dfaf1ceceae847bf60f18916d6077",
-        "GUID:8589a77a9f4d6d54f9414e93d3eadc4e",
-        "GUID:5c2b5ba89f9e74e418232e154bc5cc7a",
-        "GUID:d8b63aba1907145bea998dd612889d6b"
+        "GUID:8589a77a9f4d6d54f9414e93d3eadc4e"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
