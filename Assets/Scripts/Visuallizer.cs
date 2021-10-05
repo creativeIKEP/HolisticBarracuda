@@ -11,6 +11,7 @@ public class Visuallizer : MonoBehaviour
     [SerializeField] Shader poseShader;
     [SerializeField, Range(0, 1)] float humanExistThreshold = 0.5f;
     [SerializeField] Shader faceMeshShader;
+    [SerializeField] Mesh faceLineTemplateMesh;
     [SerializeField] Shader handShader;
     [SerializeField, Range(0, 1)] float handScoreThreshold = 0.5f;
     [SerializeField] HolisticResource resource;
@@ -82,17 +83,19 @@ public class Visuallizer : MonoBehaviour
         faceMeshMaterial.SetVector("_uiScale", new Vector2(w, h));
 
         // FaceMesh
-        faceMeshMaterial.SetBuffer("_Vertices", holisticPipeline.faceVertexBuffer);
+        faceMeshMaterial.SetBuffer("_vertices", holisticPipeline.faceVertexBuffer);
         faceMeshMaterial.SetPass(0);
-        Graphics.DrawMeshNow(resource.faceMeshResource.faceLineTemplate, Vector3.zero, Quaternion.identity);
+        Graphics.DrawMeshNow(faceLineTemplateMesh, Vector3.zero, Quaternion.identity);
 
         // Left eye
-        faceMeshMaterial.SetBuffer("_Vertices", holisticPipeline.leftEyeVertexBuffer);
+        faceMeshMaterial.SetBuffer("_vertices", holisticPipeline.leftEyeVertexBuffer);
+        faceMeshMaterial.SetVector("_eyeColor", Color.yellow);
         faceMeshMaterial.SetPass(1);
         Graphics.DrawProceduralNow(MeshTopology.Lines, 64, 1);
 
         // Right eye
-        faceMeshMaterial.SetBuffer("_Vertices", holisticPipeline.rightEyeVertexBuffer);
+        faceMeshMaterial.SetBuffer("_vertices", holisticPipeline.rightEyeVertexBuffer);
+        faceMeshMaterial.SetVector("_eyeColor", Color.cyan);
         faceMeshMaterial.SetPass(1);
         Graphics.DrawProceduralNow(MeshTopology.Lines, 64, 1);
     }

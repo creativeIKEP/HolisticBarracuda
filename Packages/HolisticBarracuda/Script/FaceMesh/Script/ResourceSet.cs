@@ -15,9 +15,6 @@ public sealed class ResourceSet : ScriptableObject
 
     public Shader preprocessShader;
     public ComputeShader postprocessCompute;
-
-    public Mesh faceMeshTemplate;
-    public Mesh faceLineTemplate;
 }
 
 } // namespace MediaPipe.FaceMesh
