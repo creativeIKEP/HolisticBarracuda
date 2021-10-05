@@ -12,6 +12,7 @@ public class Visuallizer : MonoBehaviour
     [SerializeField, Range(0, 1)] float humanExistThreshold = 0.5f;
     [SerializeField] Shader faceMeshShader;
     [SerializeField] Shader handShader;
+    [SerializeField, Range(0, 1)] float handScoreThreshold = 0.5f;
     [SerializeField] HolisticResource resource;
 
     HolisticPipeline holisticPipeline;
@@ -99,10 +100,10 @@ public class Visuallizer : MonoBehaviour
     void HandRender(bool isRight){
         var w = image.rectTransform.rect.width;
         var h = image.rectTransform.rect.height;
-        handMaterial.SetInt("_isRight", isRight?1:0);
         handMaterial.SetVector("_uiScale", new Vector2(w, h));
-        handMaterial.SetBuffer("_leftKeyPoints", holisticPipeline.leftHandVertexBuffer);
-        handMaterial.SetBuffer("_rightKeyPoints", holisticPipeline.rightHandVertexBuffer);
+        handMaterial.SetVector("_pointColor", isRight ? Color.cyan : Color.yellow);
+        handMaterial.SetFloat("_handScoreThreshold", handScoreThreshold);
+        handMaterial.SetBuffer("_vertices", isRight ? holisticPipeline.rightHandVertexBuffer : holisticPipeline.leftHandVertexBuffer);
 
         // Key point circles
         handMaterial.SetPass(0);
