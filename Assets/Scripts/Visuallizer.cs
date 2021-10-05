@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Unity.Mathematics;
 using MediaPipe.Holistic;
 
 public class Visuallizer : MonoBehaviour
@@ -14,8 +13,6 @@ public class Visuallizer : MonoBehaviour
     [SerializeField] Shader faceMeshShader;
     [SerializeField] Shader handShader;
     [SerializeField] HolisticResource resource;
-    [SerializeField] RawImage hoge;
-    [SerializeField] RawImage hoge2;
 
     HolisticPipeline holisticPipeline;
     Material poseMaterial;
@@ -42,16 +39,12 @@ public class Visuallizer : MonoBehaviour
         poseMaterial = new Material(poseShader);
         faceMeshMaterial = new Material(faceMeshShader);
         handMaterial = new Material(handShader);
-        handMaterial.SetBuffer("_leftKeyPoints",holisticPipeline.leftHandVertexBuffer);
-        handMaterial.SetBuffer("_rightKeyPoints", holisticPipeline.rightHandVertexBuffer);
     }
 
     void LateUpdate()
     {
         image.texture = webCamInput.inputImageTexture;
         holisticPipeline.ProcessImage(webCamInput.inputImageTexture);
-        hoge.texture = holisticPipeline.leftHandCropTexture;
-        hoge2.texture = holisticPipeline.rightHandCropTexture;
     }
 
     void OnRenderObject(){
@@ -108,10 +101,12 @@ public class Visuallizer : MonoBehaviour
         var h = image.rectTransform.rect.height;
         handMaterial.SetInt("_isRight", isRight?1:0);
         handMaterial.SetVector("_uiScale", new Vector2(w, h));
+        handMaterial.SetBuffer("_leftKeyPoints", holisticPipeline.leftHandVertexBuffer);
+        handMaterial.SetBuffer("_rightKeyPoints", holisticPipeline.rightHandVertexBuffer);
 
         // Key point circles
         handMaterial.SetPass(0);
-        Graphics.DrawProceduralNow(MeshTopology.Triangles, 96, 21);
+        Graphics.DrawProceduralNow(MeshTopology.Triangles, 96, holisticPipeline.handVertexCount);
 
         // Skeleton lines
         handMaterial.SetPass(1);
