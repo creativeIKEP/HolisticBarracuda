@@ -85,8 +85,13 @@ public class HolisticPipeline : System.IDisposable
         handCropBuffer.Dispose();
     }
 
-    public void ProcessImage(Texture inputTexture, BlazePoseModel blazePoseModel = BlazePoseModel.full){
-        blazePoseDetecter.ProcessImage(inputTexture, blazePoseModel);
+    public void ProcessImage(
+            Texture inputTexture, 
+            BlazePoseModel blazePoseModel = BlazePoseModel.full,
+            float poseDetectionThreshold = 0.75f,
+            float poseDetectionIouThreshold = 0.3f)
+    {
+        blazePoseDetecter.ProcessImage(inputTexture, blazePoseModel, poseDetectionThreshold, poseDetectionIouThreshold);
 
         // Letterboxing scale factor
         var scale = new Vector2(
