@@ -16,6 +16,7 @@ public class HolisticPipeline : System.IDisposable
     public ComputeBuffer poseLandmarkWorldBuffer => blazePoseDetecter.worldLandmarkBuffer;
     
     public int faceVertexCount => FaceLandmarkDetector.VertexCount;
+    // https://github.com/tensorflow/tfjs-models/raw/master/facemesh/mesh_map.jpg
     public ComputeBuffer faceVertexBuffer;
 
     public int eyeVertexCount => EyeLandmarkDetector.VertexCount;
