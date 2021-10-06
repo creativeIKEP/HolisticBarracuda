@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using MediaPipe.Holistic;
 
-public class Visuallizer : MonoBehaviour
+public class Visuallizer2D : MonoBehaviour
 {
     [SerializeField] Camera cam;
     [SerializeField] WebCamInput webCamInput;
