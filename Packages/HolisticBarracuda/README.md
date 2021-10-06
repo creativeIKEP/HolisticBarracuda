@@ -1,7 +1,7 @@
 # HolisticBarracuda
 ![demo](https://user-images.githubusercontent.com/34697515/136178988-9a6c37cb-09a2-43e4-9f05-f8c4908b8665.gif)
 
-`HolisticBarracuda` is the Unity Package that simultaneously estimates 33 pose, 21 per-hand, and 468 facial landmarks with a monocular color camera only.
+**HolisticBarracuda** is the Unity Package that simultaneously estimates 33 pose, 21 per-hand, and 468 facial landmarks with a monocular color camera only.
 
 HolisticBarracuda runs the pipeline simular to [Mediapipe Holistic](https://google.github.io/mediapipe/solutions/holistic) on the [Unity](https://unity.com/).
 
@@ -63,7 +63,7 @@ Finally, the manifest file looks like below:
 ## Usage Demo
 This repository has the demo that inference pose, face and hands landmarks, and visualize landmarks.
 
-Check a Unity [scene](https://github.com/creativeIKEP/HolisticBarracuda/blob/main/Assets/Scenes/Sample.unity), [scripts](https://github.com/creativeIKEP/HolisticBarracuda/tree/main/Assets/Scripts) and [shaders](https://github.com/creativeIKEP/HolisticBarracuda/tree/main/Assets/Shaders) in the [/Assets](https://github.com/creativeIKEP/HolisticBarracuda/tree/main/Assets) directory.
+Check a Unity [scene](https://github.com/creativeIKEP/HolisticBarracuda/blob/main/Assets/Scenes/Sample.unity), [scripts](https://github.com/creativeIKEP/HolisticBarracuda/tree/main/Assets/Scripts) and [shaders](https://github.com/creativeIKEP/HolisticBarracuda/tree/main/Assets/Shaders) in the ["/Assets"](https://github.com/creativeIKEP/HolisticBarracuda/tree/main/Assets) directory.
 
 ## Demo image
 Videos for demoe scene (["/Assets/Scenes/Sample.unity"](https://github.com/creativeIKEP/HolisticBarracuda/blob/main/Assets/Scenes/Sample.unity)) was downloaded from [here](https://www.pexels.com/ja-jp/video/7559286/).
