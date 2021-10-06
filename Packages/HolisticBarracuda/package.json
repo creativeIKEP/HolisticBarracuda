@@ -6,7 +6,7 @@
   "name": "jp.ikep.mediapipe.holistic",
   "displayName": "HolisticBarracuda",
   "description": "Mediapipe Holistic for Unity Barracuda.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "unity": "2020.3",
   "unityRelease": "11f1",
   "keywords": [
