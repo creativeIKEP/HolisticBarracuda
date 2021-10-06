@@ -13,8 +13,11 @@
     "unity",
     "Barracuda",
     "Mediapipe",
+    "Holistic",
     "Pose",
-    "Holistic"
+    "Face",
+    "Iris",
+    "Hand"
   ],
   "dependencies": {
     "com.unity.mathematics": "1.2.1",
@@ -24,5 +27,7 @@
     "jp.keijiro.mediapipe.blazepalm": "1.0.2",
     "jp.keijiro.mediapipe.handlandmark": "1.0.1",
     "jp.ikep.mediapipe.blazepose": "1.1.1"
-  }
+  },
+  "license": "Apache-2.0",
+  "repository": "github:creativeIKEP/HolisticBarracuda"
 }
