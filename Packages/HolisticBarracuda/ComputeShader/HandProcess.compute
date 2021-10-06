@@ -88,7 +88,6 @@ void HandRegionDetectFromPose(uint3 id : SV_DispatchThreadID)
 
     const float4 box = float4(boundingBoxCenter, boundingBoxSize, boundingBoxAngle);
     
-     // Hand region structure. We're going to update this.
     HandRegion region = _bboxRegion[0];
 
     // Low pass filter parameters and input vector
@@ -153,6 +152,7 @@ RWStructuredBuffer<float4> _handPostDeltaOutput;
 void HandsKeyPointPost(uint id : SV_DispatchThreadID)
 {
     if(id == HAND_KEYPOINT_COUNT){
+        // Set hand score and handedness.
         _handPostOutput[HAND_KEYPOINT_COUNT] = _handPostInput[0];
         return;
     }
@@ -164,9 +164,11 @@ void HandsKeyPointPost(uint id : SV_DispatchThreadID)
     float3 p_x = _handPostOutput[id].xyz;
     float3 p_dx = _handPostDeltaOutput[id].xyz;
 
+    // Map to cordinates of input texture from landmark.
     x = mul(region.cropMatrix, float4(x, 1)).xyz;
     x.xy = (x.xy - 0.5) * _spadScale + 0.5;
 
+    // Low pass filter
     float3 lpf_params = float3(30, 1.5, _handPostDt);
     float3 dx = lpf_Step_dx(x, p_x, p_dx, lpf_params);
     x = lpf_Step_x(x, p_x, dx, lpf_params);

@@ -1,5 +1,7 @@
-#ifndef _HANDPOSEBARRACUDA_LOWPASSFILTER_HLSL_
-#define _HANDPOSEBARRACUDA_LOWPASSFILTER_HLSL_
+// Same with https://github.com/keijiro/HandPoseBarracuda/blob/main/Assets/HandPose/Shader/LowPassFilter.hlsl
+
+#ifndef _HOLISTICBARRACUDA_LOWPASSFILTER_HLSL_
+#define _HOLISTICBARRACUDA_LOWPASSFILTER_HLSL_
 
 //
 // "One Euro" low pass filter

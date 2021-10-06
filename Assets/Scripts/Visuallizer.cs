@@ -17,6 +17,7 @@ public class Visuallizer : MonoBehaviour
     [SerializeField, Range(0, 1)] float handScoreThreshold = 0.5f;
     // Set "Packages/HolisticBarracuda/ResourceSet/Holistic.asset" on the Unity Editor.
     [SerializeField] HolisticResource holisticResource;
+    // Select inference type with pull down on the Unity Editor.
     [SerializeField] HolisticInferenceType holisticInferenceType = HolisticInferenceType.full;
 
     HolisticPipeline holisticPipeline;
@@ -42,6 +43,7 @@ public class Visuallizer : MonoBehaviour
     {
         // Make instance of HolisticPipeline
         holisticPipeline = new HolisticPipeline(holisticResource);
+
         poseMaterial = new Material(poseShader);
         faceMeshMaterial = new Material(faceShader);
         handMaterial = new Material(handShader);
@@ -50,7 +52,7 @@ public class Visuallizer : MonoBehaviour
     void LateUpdate()
     {
         image.texture = webCamInput.inputImageTexture;
-        // Predict
+        // Inference. Switchable inference type anytime.
         holisticPipeline.ProcessImage(webCamInput.inputImageTexture, holisticInferenceType);
     }
 
@@ -65,7 +67,7 @@ public class Visuallizer : MonoBehaviour
         var w = image.rectTransform.rect.width;
         var h = image.rectTransform.rect.height;
 
-        // Set predicted pose landmark results.
+        // Set inferenced pose landmark results.
         poseMaterial.SetBuffer("_vertices", holisticPipeline.poseLandmarkBuffer);
         // Set pose landmark counts.
         poseMaterial.SetInt("_keypointCount", holisticPipeline.poseVertexCount);
@@ -88,17 +90,20 @@ public class Visuallizer : MonoBehaviour
         faceMeshMaterial.SetVector("_uiScale", new Vector2(w, h));
 
         // FaceMesh
+        // Set inferenced face landmark results.
         faceMeshMaterial.SetBuffer("_vertices", holisticPipeline.faceVertexBuffer);
         faceMeshMaterial.SetPass(0);
         Graphics.DrawMeshNow(faceLineTemplateMesh, Vector3.zero, Quaternion.identity);
 
         // Left eye
+        // Set inferenced eye landmark results.
         faceMeshMaterial.SetBuffer("_vertices", holisticPipeline.leftEyeVertexBuffer);
         faceMeshMaterial.SetVector("_eyeColor", Color.yellow);
         faceMeshMaterial.SetPass(1);
         Graphics.DrawProceduralNow(MeshTopology.Lines, 64, 1);
 
         // Right eye
+        // Set inferenced eye landmark results.
         faceMeshMaterial.SetBuffer("_vertices", holisticPipeline.rightEyeVertexBuffer);
         faceMeshMaterial.SetVector("_eyeColor", Color.cyan);
         faceMeshMaterial.SetPass(1);
@@ -111,21 +116,20 @@ public class Visuallizer : MonoBehaviour
         handMaterial.SetVector("_uiScale", new Vector2(w, h));
         handMaterial.SetVector("_pointColor", isRight ? Color.cyan : Color.yellow);
         handMaterial.SetFloat("_handScoreThreshold", handScoreThreshold);
+        // Set inferenced hand landmark results.
         handMaterial.SetBuffer("_vertices", isRight ? holisticPipeline.rightHandVertexBuffer : holisticPipeline.leftHandVertexBuffer);
 
-        // Key point circles
+        // Draw 21 key point circles.
         handMaterial.SetPass(0);
         Graphics.DrawProceduralNow(MeshTopology.Triangles, 96, holisticPipeline.handVertexCount);
 
-        // Skeleton lines
+        // Draw skeleton lines.
         handMaterial.SetPass(1);
         Graphics.DrawProceduralNow(MeshTopology.Lines, 2, 4 * 5 + 1);
     }
 
     void OnDestroy(){
+        // Must call Dispose method when no longer in use.
         holisticPipeline.Dispose();
-        Destroy(poseMaterial);
-        Destroy(faceMeshMaterial);
-        Destroy(handMaterial);
     }
 }

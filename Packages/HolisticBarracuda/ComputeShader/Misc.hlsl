@@ -1,5 +1,7 @@
-#ifndef _HANDPOSEBARRACUDA_MISC_HLSL_
-#define _HANDPOSEBARRACUDA_MISC_HLSL_
+// Same with https://github.com/keijiro/HandPoseBarracuda/blob/main/Assets/HandPose/Shader/Misc.hlsl
+
+#ifndef _HOLISTICBARRACUDA_MISC_HLSL_
+#define _HOLISTICBARRACUDA_MISC_HLSL_
 
 #define PI 3.14159265359
 
