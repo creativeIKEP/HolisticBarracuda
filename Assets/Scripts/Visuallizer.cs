@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+// Import HolisticBarracuda
 using MediaPipe.Holistic;
 
 public class Visuallizer : MonoBehaviour
@@ -10,11 +11,13 @@ public class Visuallizer : MonoBehaviour
     [SerializeField] RawImage image;
     [SerializeField] Shader poseShader;
     [SerializeField, Range(0, 1)] float humanExistThreshold = 0.5f;
-    [SerializeField] Shader faceMeshShader;
+    [SerializeField] Shader faceShader;
     [SerializeField] Mesh faceLineTemplateMesh;
     [SerializeField] Shader handShader;
     [SerializeField, Range(0, 1)] float handScoreThreshold = 0.5f;
-    [SerializeField] HolisticResource resource;
+    // Set "Packages/HolisticBarracuda/ResourceSet/Holistic.asset" on the Unity Editor.
+    [SerializeField] HolisticResource holisticResource;
+    [SerializeField] HolisticInferenceType holisticInferenceType = HolisticInferenceType.full;
 
     HolisticPipeline holisticPipeline;
     Material poseMaterial;
@@ -37,16 +40,18 @@ public class Visuallizer : MonoBehaviour
 
     void Start()
     {
-        holisticPipeline = new HolisticPipeline(resource);
+        // Make instance of HolisticPipeline
+        holisticPipeline = new HolisticPipeline(holisticResource);
         poseMaterial = new Material(poseShader);
-        faceMeshMaterial = new Material(faceMeshShader);
+        faceMeshMaterial = new Material(faceShader);
         handMaterial = new Material(handShader);
     }
 
     void LateUpdate()
     {
         image.texture = webCamInput.inputImageTexture;
-        holisticPipeline.ProcessImage(webCamInput.inputImageTexture);
+        // Predict
+        holisticPipeline.ProcessImage(webCamInput.inputImageTexture, holisticInferenceType);
     }
 
     void OnRenderObject(){

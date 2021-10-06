@@ -405,11 +405,12 @@ MonoBehaviour:
   image: {fileID: 562178247}
   poseShader: {fileID: 4800000, guid: 53b40831901b386419606fafb90ff9c1, type: 3}
   humanExistThreshold: 0.5
-  faceMeshShader: {fileID: 4800000, guid: 8d349fe931d52f440a93aec0e3ec67ea, type: 3}
+  faceShader: {fileID: 4800000, guid: 8d349fe931d52f440a93aec0e3ec67ea, type: 3}
   faceLineTemplateMesh: {fileID: 4300000, guid: 4d1b450bb6d281641af6c72e8b37cfcb, type: 2}
   handShader: {fileID: 4800000, guid: 1b792b8e71d565242ae238f771a1db59, type: 3}
   handScoreThreshold: 0.5
-  resource: {fileID: 11400000, guid: 3d7456c7320edba4caea63df7db64fb7, type: 2}
+  holisticResource: {fileID: 11400000, guid: 3d7456c7320edba4caea63df7db64fb7, type: 2}
+  holisticInferenceType: 0
 --- !u!114 &1716695272
 MonoBehaviour:
   m_ObjectHideFlags: 0

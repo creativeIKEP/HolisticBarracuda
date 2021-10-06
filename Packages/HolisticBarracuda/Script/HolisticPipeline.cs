@@ -102,11 +102,15 @@ public class HolisticPipeline : System.IDisposable
 
     public void ProcessImage(
             Texture inputTexture, 
+            HolisticInferenceType inferenceType = HolisticInferenceType.full,
             BlazePoseModel blazePoseModel = BlazePoseModel.full,
             float poseDetectionThreshold = 0.75f,
             float poseDetectionIouThreshold = 0.3f)
     {
-        blazePoseDetecter.ProcessImage(inputTexture, blazePoseModel, poseDetectionThreshold, poseDetectionIouThreshold);
+        if(inferenceType != HolisticInferenceType.face_only)
+            blazePoseDetecter.ProcessImage(inputTexture, blazePoseModel, poseDetectionThreshold, poseDetectionIouThreshold);
+
+        if(inferenceType == HolisticInferenceType.pose_only) return;
 
         // Letterboxing scale factor
         var scale = new Vector2(
@@ -123,8 +127,16 @@ public class HolisticPipeline : System.IDisposable
         commonCs.SetTexture(0, "_letterboxTexture", letterBoxTexture);
         commonCs.Dispatch(0, letterboxWidth / 8, letterboxWidth / 8, 1);
 
-        FaceProcess(inputTexture, letterBoxTexture, scale);
-        HandProcess(inputTexture, letterBoxTexture, scale);
+        if( inferenceType == HolisticInferenceType.full || 
+            inferenceType == HolisticInferenceType.pose_and_face || 
+            inferenceType == HolisticInferenceType.face_only
+        )
+            FaceProcess(inputTexture, letterBoxTexture, scale);
+
+        if( inferenceType == HolisticInferenceType.full || 
+            inferenceType == HolisticInferenceType.pose_and_hand
+        )
+            HandProcess(inputTexture, letterBoxTexture, scale);
     }
 
     void FaceProcess(Texture inputTexture, Texture letterBoxTexture, Vector2 spadScale){
