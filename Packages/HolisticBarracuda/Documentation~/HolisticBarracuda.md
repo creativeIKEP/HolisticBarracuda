@@ -6,6 +6,7 @@ HolisticBarracuda uses the following packages:
 - [IrisBarracuda](https://github.com/keijiro/IrisBarracuda)
 - [BlazePalmBarracuda](https://github.com/keijiro/BlazePalmBarracuda)
 - [HandLandmarkBarracuda](https://github.com/keijiro/HandLandmarkBarracuda)
+- [BlazePoseBarracuda](https://github.com/creativeIKEP/BlazePoseBarracuda)
 
 ## Install
 HolisticBarracuda can be installed by adding following sections to your manifest file (`Packages/manifest.json`).

@@ -12,6 +12,7 @@ HolisticBarracuda uses the following packages:
 - [IrisBarracuda](https://github.com/keijiro/IrisBarracuda)
 - [BlazePalmBarracuda](https://github.com/keijiro/BlazePalmBarracuda)
 - [HandLandmarkBarracuda](https://github.com/keijiro/HandLandmarkBarracuda)
+- [BlazePoseBarracuda](https://github.com/creativeIKEP/BlazePoseBarracuda)
 
 ## Used source codes
 Parts of face and hands implementations used many [keijiro](https://github.com/keijiro)'s below source codes. Thanks!
