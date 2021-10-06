@@ -57,10 +57,22 @@ public class Visuallizer : MonoBehaviour
     }
 
     void OnRenderObject(){
-        PoseRender();
-        FaceRender();
-        HandRender(false);
-        HandRender(true);
+        if(holisticInferenceType != HolisticInferenceType.face_only) PoseRender();
+        if(holisticInferenceType == HolisticInferenceType.pose_only) return;
+
+        if( holisticInferenceType == HolisticInferenceType.full || 
+            holisticInferenceType == HolisticInferenceType.pose_and_face || 
+            holisticInferenceType == HolisticInferenceType.face_only)
+        {
+            FaceRender();
+        }
+
+        if( holisticInferenceType == HolisticInferenceType.full || 
+            holisticInferenceType == HolisticInferenceType.pose_and_hand)
+        {
+            HandRender(false);
+            HandRender(true);
+        }
     }
 
     void PoseRender(){
