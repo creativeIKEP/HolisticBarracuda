@@ -277,10 +277,8 @@ public class HolisticPipeline : System.IDisposable
             // Inference hand landmark.
             handLandmarkDetector.ProcessImage(handCropBuffer);
 
-            var scoreCache = new Vector4[1];
-            handLandmarkDetector.OutputBuffer.GetData(scoreCache, 0, 0, 1);
-            float score = scoreCache[0].x;
-            float handedness = scoreCache[0].y;
+            float score = handLandmarkDetector.Score;
+            float handedness = handLandmarkDetector.Handedness;
             bool isRight = handedness > 0.5f;
             if(score < 0.5f){
                 if(isRight) isNeedRightFallback = true;
