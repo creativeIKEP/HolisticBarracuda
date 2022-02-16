@@ -119,7 +119,7 @@ public class HolisticPipeline : System.IDisposable
         faceCs = resource.faceCs;
         handCs = resource.handCs;
 
-        blazePoseDetecter = new BlazePoseDetecter(resource.blazePoseResource, blazePoseModel);
+        blazePoseDetecter = new BlazePoseDetecter(blazePoseModel);
         facePipeline = new FacePipeline(resource.faceMeshResource);
         palmDetector = new PalmDetector(resource.blazePalmResource);
         handLandmarkDetector = new HandLandmarkDetector(resource.handLandmarkResource);
