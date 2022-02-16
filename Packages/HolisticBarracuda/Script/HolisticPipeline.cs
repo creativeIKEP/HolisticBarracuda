@@ -114,7 +114,9 @@ public class HolisticPipeline : System.IDisposable
 
 
     #region public methods
-    public HolisticPipeline(HolisticResource resource, BlazePoseModel blazePoseModel = BlazePoseModel.full){
+    public HolisticPipeline(BlazePoseModel blazePoseModel = BlazePoseModel.full){
+        var resource = Resources.Load<HolisticResource>("Holistic");
+
         commonCs = resource.commonCs;
         faceCs = resource.faceCs;
         handCs = resource.handCs;

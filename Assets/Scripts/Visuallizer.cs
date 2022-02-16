@@ -15,8 +15,6 @@ public class Visuallizer : MonoBehaviour
     [SerializeField] Mesh faceLineTemplateMesh;
     [SerializeField] Shader handShader;
     [SerializeField, Range(0, 1)] float handScoreThreshold = 0.5f;
-    // Set "Packages/HolisticBarracuda/ResourceSet/Holistic.asset" on the Unity Editor.
-    [SerializeField] HolisticResource holisticResource;
     // Select inference type with pull down on the Unity Editor.
     [SerializeField] HolisticInferenceType holisticInferenceType = HolisticInferenceType.full;
 
@@ -42,7 +40,7 @@ public class Visuallizer : MonoBehaviour
     void Start()
     {
         // Make instance of HolisticPipeline
-        holisticPipeline = new HolisticPipeline(holisticResource);
+        holisticPipeline = new HolisticPipeline();
 
         poseMaterial = new Material(poseShader);
         faceMeshMaterial = new Material(faceShader);
