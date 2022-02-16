@@ -190,6 +190,7 @@ public class HolisticPipeline : System.IDisposable
         // Image scaling and padding
         // Output image is letter-box image.
         // For example, top and bottom pixels of `letterboxTexture` are black if `inputTexture` size is 1920(width)*1080(height)
+        commonCs.SetInt("_isLinerColorSpace", QualitySettings.activeColorSpace == ColorSpace.Linear ? 1 : 0);
         commonCs.SetVector("_spadScale", scale);
         commonCs.SetInt("_letterboxWidth", letterboxWidth);
         commonCs.SetTexture(0, "_letterboxInput", inputTexture);

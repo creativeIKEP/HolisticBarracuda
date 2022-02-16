@@ -1,6 +1,8 @@
 #pragma kernel LetterBoxImage
 
+#include "UnityCG.cginc"
 
+uint _isLinerColorSpace;
 float2 _spadScale;
 uint _letterboxWidth;
 sampler2D _letterboxInput;
@@ -28,5 +30,7 @@ void LetterBoxImage(uint2 id : SV_DispatchThreadID)
     // Bounding
     rgb *= all(uv > 0) && all (uv < 1);
 
+    if(_isLinerColorSpace) rgb = LinearToGammaSpace(rgb);
+    
     _letterboxTexture[id] = float4(rgb, 1);
 }
