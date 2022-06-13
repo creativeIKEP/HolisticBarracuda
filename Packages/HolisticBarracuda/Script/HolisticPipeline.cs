@@ -257,6 +257,7 @@ public class HolisticPipeline : System.IDisposable
             // Hand region bounding box update
             handCs.SetInt("_detectionCount", handDetectionCount);
             handCs.SetFloat("_regionDetectDt", Time.deltaTime);
+            handCs.SetBuffer(0, "_poseInput", blazePoseDetecter.outputBuffer);
             handCs.SetBuffer(0, "_palmDetections", palmDetector.DetectionBuffer);
             handCs.SetBuffer(0, "_handsRegionFromPalm", handsRegionFromPalm);
             handCs.Dispatch(0, 1, 1, 1);
@@ -264,7 +265,7 @@ public class HolisticPipeline : System.IDisposable
 
         handCs.SetVector("_spadScale", spadScale);
         handCs.SetInt("_isVerticalFlip", 1);
-        for(int i=0; i<handDetectionCount; i++){
+        for(int i = 0; i < 2; i++){
             handCs.SetInt("_handRegionIndex", i);
 
             // Hand region cropping
