@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 using Mediapipe.BlazePose;
 using MediaPipe.FaceMesh;
 using MediaPipe.FaceLandmark;
@@ -110,6 +111,8 @@ public class HolisticPipeline : System.IDisposable
     ComputeBuffer handCropBuffer;
     ComputeBuffer deltaLeftHandVertexBuffer;
     ComputeBuffer deltaRightHandVertexBuffer;
+    // Array of landmarks for accessing data with CPU (C#). 
+    Vector4[] faceLandmarks, leftEyeLandmarks, rightEyeLandmarks, leftHandLandmarks, rightHandLandmarks;
     #endregion
 
 
@@ -144,6 +147,12 @@ public class HolisticPipeline : System.IDisposable
         handCropBuffer = new ComputeBuffer(handCropImageSize * handCropImageSize * 3, sizeof(float));
         deltaLeftHandVertexBuffer = new ComputeBuffer(handVertexCount, sizeof(float) * 4);
         deltaRightHandVertexBuffer = new ComputeBuffer(handVertexCount, sizeof(float) * 4);
+
+        faceLandmarks = new Vector4[faceVertexCount];
+        leftEyeLandmarks = new Vector4[eyeVertexCount];
+        rightEyeLandmarks = new Vector4[eyeVertexCount];
+        leftHandLandmarks = new Vector4[handVertexCount + 1];
+        rightHandLandmarks = new Vector4[handVertexCount + 1];
     }
 
     public void Dispose(){
@@ -169,6 +178,15 @@ public class HolisticPipeline : System.IDisposable
         deltaLeftHandVertexBuffer.Dispose();
         deltaRightHandVertexBuffer.Dispose();
     }
+
+    // Provide cached landmarks.
+    public Vector4 GetPoseLandmark(int index) => blazePoseDetecter.GetPoseLandmark(index);
+    public Vector4 GetPoseWorldLandmark(int index) => blazePoseDetecter.GetPoseWorldLandmark(index);
+    public Vector4 GetFaceLandmark(int index) => faceLandmarks[index];
+    public Vector4 GetLeftEyeLandmark(int index) => leftEyeLandmarks[index];
+    public Vector4 GetRightEyeLandmark(int index) => rightEyeLandmarks[index];
+    public Vector4 GetLeftHandLandmark(int index) => leftHandLandmarks[index];
+    public Vector4 GetRightHandLandmark(int index) => rightHandLandmarks[index];
 
     public void ProcessImage(
             Texture inputTexture, 
@@ -239,6 +257,17 @@ public class HolisticPipeline : System.IDisposable
         // The output of `facePipeline` is flipped horizontally.
         faceCs.SetBuffer(1, "_irisReconVertices", leftEyeVertexBuffer);
         faceCs.Dispatch(1, eyeVertexCount, 1, 1);
+
+        // Cache landmarks to array for accessing data with CPU (C#).  
+        AsyncGPUReadback.Request(faceVertexBuffer, request => {
+            request.GetData<Vector4>().CopyTo(faceLandmarks);
+        });
+        AsyncGPUReadback.Request(leftEyeVertexBuffer, request => {
+            request.GetData<Vector4>().CopyTo(leftEyeLandmarks);
+        });
+        AsyncGPUReadback.Request(rightEyeVertexBuffer, request => {
+            request.GetData<Vector4>().CopyTo(rightEyeLandmarks);
+        });
     }
 
     void HandProcess(Texture inputTexture, Texture letterBoxTexture, Vector2 spadScale){
@@ -299,6 +328,14 @@ public class HolisticPipeline : System.IDisposable
         // Hand Re-track with pose landmark if hand is not detected or landmark's score is too low.
         if(isNeedRightFallback) HandProcessFromPose(inputTexture, true);
         if(isNeedLeftFallback) HandProcessFromPose(inputTexture, false);
+
+        // Cache landmarks to array for accessing data with CPU (C#).  
+        AsyncGPUReadback.Request(leftHandVertexBuffer, request => {
+            request.GetData<Vector4>().CopyTo(leftHandLandmarks);
+        });
+        AsyncGPUReadback.Request(rightHandVertexBuffer, request => {
+            request.GetData<Vector4>().CopyTo(rightHandLandmarks);
+        });
     }
 
     void HandProcessFromPose(Texture inputTexture, bool isRight){
