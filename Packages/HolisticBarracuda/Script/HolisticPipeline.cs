@@ -45,6 +45,7 @@ public class HolisticPipeline : System.IDisposable
     
     // Count of face landmarks vertices.
     public int faceVertexCount => FaceLandmarkDetector.VertexCount;
+    public float faceDetectionScore => facePipeline.FaceDetectionScore;
     /*
     Face landmark result buffer.
     'faceVertexBuffer' is array of float4 type.
@@ -73,6 +74,8 @@ public class HolisticPipeline : System.IDisposable
 
     // Count of hand landmarks vertices.
     public int handVertexCount => HandLandmarkDetector.VertexCount;
+    public float leftHandDetectionScore;
+    public float rightHandDetectionScore;
     /*
     Hand landmark result buffer.
     0~20 index datas are hand landmark.
@@ -271,6 +274,9 @@ public class HolisticPipeline : System.IDisposable
     }
 
     void HandProcess(Texture inputTexture, Texture letterBoxTexture, Vector2 spadScale){
+        leftHandDetectionScore = 0;
+        rightHandDetectionScore = 0;
+
         // Inference palm detection.
         palmDetector.ProcessImage(letterBoxTexture);
 
@@ -310,6 +316,13 @@ public class HolisticPipeline : System.IDisposable
             float score = handLandmarkDetector.Score;
             float handedness = handLandmarkDetector.Handedness;
             bool isRight = handedness > 0.5f;
+            if(isRight){
+                rightHandDetectionScore = score;
+            }
+            else{
+                leftHandDetectionScore = score;
+            }
+
             if(score < 0.5f){
                 if(isRight) isNeedRightFallback = true;
                 else isNeedLeftFallback = true;
@@ -368,6 +381,13 @@ public class HolisticPipeline : System.IDisposable
         handCs.SetBuffer(3, "_handPostOutput", isRight ? rightHandVertexBuffer : leftHandVertexBuffer);
         handCs.SetBuffer(3, "_handPostDeltaOutput", isRight ? deltaRightHandVertexBuffer : deltaLeftHandVertexBuffer);
         handCs.Dispatch(3, 1, 1, 1);
+
+        if(isRight){
+            rightHandDetectionScore = blazePoseDetecter.GetPoseLandmark(16).w;
+        }
+        else{
+            leftHandDetectionScore = blazePoseDetecter.GetPoseLandmark(15).w;
+        }
     }
     #endregion
 }
