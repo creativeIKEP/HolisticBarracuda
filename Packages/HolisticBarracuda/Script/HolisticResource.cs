@@ -7,7 +7,6 @@ namespace MediaPipe.Holistic {
     {
         public BlazePoseResource blazePoseResource;
         public MediaPipe.FaceMesh.ResourceSet faceMeshResource;
-        public MediaPipe.BlazePalm.ResourceSet blazePalmResource;
         public MediaPipe.HandLandmark.ResourceSet handLandmarkResource;
         public ComputeShader commonCs;
         public ComputeShader faceCs;
