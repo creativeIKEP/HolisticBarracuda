@@ -231,7 +231,12 @@ public class HolisticPipeline : System.IDisposable
         if( inferenceType == HolisticInferenceType.full || 
             inferenceType == HolisticInferenceType.pose_and_hand
         )
-            HandProcess(inputTexture, letterBoxTexture, scale);
+            // HandProcess(inputTexture, letterBoxTexture, scale);
+            {
+                HandProcessFromPose(inputTexture, true);
+                HandProcessFromPose(inputTexture, false);
+
+            }
     }
     #endregion
 
@@ -388,6 +393,14 @@ public class HolisticPipeline : System.IDisposable
         else{
             leftHandDetectionScore = blazePoseDetecter.GetPoseLandmark(15).w;
         }
+
+        // Cache landmarks to array for accessing data with CPU (C#).  
+        AsyncGPUReadback.Request(leftHandVertexBuffer, request => {
+            request.GetData<Vector4>().CopyTo(leftHandLandmarks);
+        });
+        AsyncGPUReadback.Request(rightHandVertexBuffer, request => {
+            request.GetData<Vector4>().CopyTo(rightHandLandmarks);
+        });
     }
     #endregion
 }
