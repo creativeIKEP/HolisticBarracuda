@@ -314,8 +314,7 @@ public class HolisticPipeline : System.IDisposable
             handLandmarkDetector.ProcessImage(handCropBuffer);
 
             float score = handLandmarkDetector.Score;
-            float handedness = handLandmarkDetector.Handedness;
-            bool isRight = handedness > 0.5f;
+            bool isRight = (i==1);
             if(isRight){
                 rightHandDetectionScore = score;
             }

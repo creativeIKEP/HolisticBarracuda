@@ -46,8 +46,8 @@ void HandRegionDetectFromPalm(uint id : SV_DispatchThreadID)
 
         const float4 box = float4(palm.center, size, angle);
 
-        float distanceFromL = distance(box.xy, index_l.xy);
-        float distanceFromR = distance(box.xy, index_r.xy);
+        float distanceFromL = distance(box.xy, boundingBoxCenter_l.xy);
+        float distanceFromR = distance(box.xy, boundingBoxCenter_r.xy);
 
         uint isRight = distanceFromL > distanceFromR;
         HandRegion region = pRegionL;
