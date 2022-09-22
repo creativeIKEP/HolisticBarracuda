@@ -38,7 +38,7 @@ void HandRegionDetectFromPalm(uint id : SV_DispatchThreadID)
         const PalmDetection palm = _palmDetections[i];
 
         // Palm region size (squarified and enlarged bounding box)
-        float size = max(palm.extent.x, palm.extent.y) * 3;
+        float size = max(palm.extent.x, palm.extent.y) * 3.05f;
 
         // Palm angle
         const float2 up = palm.keyPoints[3] - palm.keyPoints[0];
@@ -63,7 +63,7 @@ void HandRegionDetectFromPalm(uint id : SV_DispatchThreadID)
         float4x4 m2 = makeScalingMatrix(region.box.z);
         float4x4 m3 = makeTranslationMatrix(0.5);
         float4x4 m4 = makeRotationMatrix(region.box.w);
-        float4x4 m5 = makeTranslationMatrix(-0.5 + float2(0, 0.15));
+        float4x4 m5 = makeTranslationMatrix(-0.5 + float2(0, 0.05f));
         region.cropMatrix = mul(mul(mul(mul(m1, m2), m3), m4), m5);
 
         // Compute buffer update
