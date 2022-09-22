@@ -141,8 +141,6 @@ public class HolisticPipeline : System.IDisposable
         leftHandRegionFromPose = new ComputeBuffer(1, sizeof(float) * 24);
         rightHandRegionFromPose = new ComputeBuffer(1, sizeof(float) * 24);
         handCropBuffer = new ComputeBuffer(handCropImageSize * handCropImageSize * 3, sizeof(float));
-        deltaLeftHandVertexBuffer = new ComputeBuffer(handVertexCount, sizeof(float) * 4);
-        deltaRightHandVertexBuffer = new ComputeBuffer(handVertexCount, sizeof(float) * 4);
 
         faceLandmarks = new Vector4[faceVertexCount];
         leftEyeLandmarks = new Vector4[eyeVertexCount];
@@ -168,8 +166,6 @@ public class HolisticPipeline : System.IDisposable
         leftHandRegionFromPose.Dispose();
         rightHandRegionFromPose.Dispose();
         handCropBuffer.Dispose();
-        deltaLeftHandVertexBuffer.Dispose();
-        deltaRightHandVertexBuffer.Dispose();
     }
 
     // Provide cached landmarks.
@@ -266,9 +262,6 @@ public class HolisticPipeline : System.IDisposable
         });
     }
 
-    ComputeBuffer deltaLeftHandVertexBuffer;
-    ComputeBuffer deltaRightHandVertexBuffer;
-
     void HandProcess(Texture inputTexture, bool isRight){
         // Calculate hand region with pose landmark
         handCs.SetInt("_isRight", isRight?1:0);
@@ -293,11 +286,9 @@ public class HolisticPipeline : System.IDisposable
         handLandmarkDetector.ProcessImage(handCropBuffer);
 
         // Key point postprocess
-        handCs.SetFloat("_handPostDt", Time.deltaTime);
         handCs.SetBuffer(2, "_handPostInput", handLandmarkDetector.OutputBuffer);
         handCs.SetBuffer(2, "_handPostRegion", isRight ? rightHandRegionFromPose : leftHandRegionFromPose);
         handCs.SetBuffer(2, "_handPostOutput", isRight ? rightHandVertexBuffer : leftHandVertexBuffer);
-        handCs.SetBuffer(2, "_handPostDeltaOutput", isRight ? deltaRightHandVertexBuffer : deltaLeftHandVertexBuffer);
         handCs.Dispatch(2, 1, 1, 1);
 
         if(isRight){
