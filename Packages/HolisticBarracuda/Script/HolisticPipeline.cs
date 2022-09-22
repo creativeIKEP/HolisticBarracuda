@@ -291,7 +291,7 @@ public class HolisticPipeline : System.IDisposable
         if(handDetectionCount > 0){
             // Hand region bounding box update
             handCs.SetInt("_detectionCount", handDetectionCount);
-            handCs.SetFloat("_regionDetectDt", Time.deltaTime);
+            handCs.SetFloat("_regionDetectDt", Time.unscaledDeltaTime);
             handCs.SetBuffer(0, "_poseInput", blazePoseDetecter.outputBuffer);
             handCs.SetBuffer(0, "_palmDetections", palmDetector.DetectionBuffer);
             handCs.SetBuffer(0, "_handsRegionFromPalm", handsRegionFromPalm);
@@ -314,8 +314,7 @@ public class HolisticPipeline : System.IDisposable
             handLandmarkDetector.ProcessImage(handCropBuffer);
 
             float score = handLandmarkDetector.Score;
-            float handedness = handLandmarkDetector.Handedness;
-            bool isRight = handedness > 0.5f;
+            bool isRight = (i==1);
             if(isRight){
                 rightHandDetectionScore = score;
             }
@@ -323,14 +322,14 @@ public class HolisticPipeline : System.IDisposable
                 leftHandDetectionScore = score;
             }
 
-            if(score < 0.5f){
+            if(score < 0.1f){
                 if(isRight) isNeedRightFallback = true;
                 else isNeedLeftFallback = true;
                 continue;
             }
 
             // Key point postprocess
-            handCs.SetFloat("_handPostDt", Time.deltaTime);
+            handCs.SetFloat("_handPostDt", Time.unscaledDeltaTime);
             handCs.SetBuffer(3, "_handPostInput", handLandmarkDetector.OutputBuffer);
             handCs.SetBuffer(3, "_handPostRegion", handsRegionFromPalm);
             handCs.SetBuffer(3, "_handPostOutput", isRight ? rightHandVertexBuffer : leftHandVertexBuffer);
