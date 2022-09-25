@@ -336,7 +336,7 @@ public class HolisticPipeline : System.IDisposable
     void HandProcessFromPose(Texture inputTexture, bool isRight){
         // Calculate hand region with pose landmark
         handCs.SetInt("_isRight", isRight?1:0);
-        handCs.SetFloat("_bboxDt", Time.deltaTime);
+        handCs.SetFloat("_bboxDt", Time.unscaledDeltaTime);
         handCs.SetBuffer(1, "_poseInput", blazePoseDetecter.outputBuffer);
         handCs.SetBuffer(1, "_bboxRegion", isRight ? rightHandRegionFromPose : leftHandRegionFromPose);
         handCs.Dispatch(1, 1, 1, 1);
@@ -357,7 +357,7 @@ public class HolisticPipeline : System.IDisposable
         handLandmarkDetector.ProcessImage(handCropBuffer);
 
         // Key point postprocess
-        handCs.SetFloat("_handPostDt", Time.deltaTime);
+        handCs.SetFloat("_handPostDt", Time.unscaledDeltaTime);
         handCs.SetBuffer(3, "_handPostInput", handLandmarkDetector.OutputBuffer);
         handCs.SetBuffer(3, "_handPostRegion", isRight ? rightHandRegionFromPose : leftHandRegionFromPose);
         handCs.SetBuffer(3, "_handPostOutput", isRight ? rightHandVertexBuffer : leftHandVertexBuffer);
