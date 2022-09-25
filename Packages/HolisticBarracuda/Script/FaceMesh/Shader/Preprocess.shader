@@ -16,7 +16,15 @@ Shader "Hidden/MediaPipe/FaceMesh/Preprocess"
                     float2 uv : TEXCOORD0) : SV_Target
     {
         uv = mul(_Xform, float4(uv, 0, 1)).xy;
-        return tex2D(_MainTex, uv);
+        float4 color = tex2D(_MainTex, uv);
+
+        // The Shader will display the appropriate colors even in the liner color space, 
+        // so the color representation will be wrong, but we will convert it for better estimation accuracy.
+        #if !UNITY_COLORSPACE_GAMMA
+        color.rgb = LinearToGammaSpace(color.rgb);
+        #endif
+        
+        return color;
     }
 
     ENDCG

@@ -11,24 +11,35 @@
 #define HAND_KEYPOINT_COUNT 21
 
 
-uint _detectionCount;
+ByteAddressBuffer _detectionCount;
 float _regionDetectDt;
+StructuredBuffer<float4> _poseInput;
 StructuredBuffer<PalmDetection> _palmDetections;
 RWStructuredBuffer<HandRegion> _handsRegionFromPalm;
 
 [numthreads(1, 1, 1)]
 void HandRegionDetectFromPalm(uint id : SV_DispatchThreadID)
 {
-    HandRegion pRegion0 = _handsRegionFromPalm[0];
-    HandRegion pRegion1 = _handsRegionFromPalm[1];
+    uint detectionCount = _detectionCount.Load(0);
+    if(detectionCount == 0) return;
 
-    for(uint i = 0; i<_detectionCount; i++){
+    HandRegion pRegionL = _handsRegionFromPalm[0];
+    HandRegion pRegionR = _handsRegionFromPalm[1];
 
+    float4 index_l = _poseInput[19];
+    float4 pinky_l = _poseInput[17];
+    float2 boundingBoxCenter_l = (2.0f * index_l.xy + pinky_l.xy) / 3.0f;
+
+    float4 index_r = _poseInput[20];
+    float4 pinky_r = _poseInput[18];
+    float2 boundingBoxCenter_r = (2.0f * index_r.xy + pinky_r.xy) / 3.0f;
+    
+    for(uint i = 0; i < detectionCount; i++){
         // Input from the palm detection model
         const PalmDetection palm = _palmDetections[i];
 
         // Palm region size (squarified and enlarged bounding box)
-        float size = max(palm.extent.x, palm.extent.y) * 3;
+        float size = max(palm.extent.x, palm.extent.y) * 3.05f;
 
         // Palm angle
         const float2 up = palm.keyPoints[3] - palm.keyPoints[0];
@@ -36,11 +47,12 @@ void HandRegionDetectFromPalm(uint id : SV_DispatchThreadID)
 
         const float4 box = float4(palm.center, size, angle);
 
-        float distance0 = distance(box.xy, pRegion0.box.xy);
-        float distance1 = distance(box.xy, pRegion1.box.xy);
+        float distanceFromL = distance(box.xy, boundingBoxCenter_l.xy);
+        float distanceFromR = distance(box.xy, boundingBoxCenter_r.xy);
 
-        HandRegion region = pRegion0;
-        if(distance0 > distance1) region = pRegion1;
+        uint isRight = distanceFromL > distanceFromR;
+        HandRegion region = pRegionL;
+        if(isRight) region = pRegionR;
 
         // Low pass filter parameters and input vector
         const float3 lpf_params = float3(2, 1.5f, _regionDetectDt);
@@ -52,18 +64,17 @@ void HandRegionDetectFromPalm(uint id : SV_DispatchThreadID)
         float4x4 m2 = makeScalingMatrix(region.box.z);
         float4x4 m3 = makeTranslationMatrix(0.5);
         float4x4 m4 = makeRotationMatrix(region.box.w);
-        float4x4 m5 = makeTranslationMatrix(-0.5 + float2(0, 0.15));
+        float4x4 m5 = makeTranslationMatrix(-0.5 + float2(0, 0.05f));
         region.cropMatrix = mul(mul(mul(mul(m1, m2), m3), m4), m5);
 
         // Compute buffer update
-        _handsRegionFromPalm[i] = region;
+        _handsRegionFromPalm[isRight] = region;
     }
 }
 
 
 int _isRight;
 float _bboxDt;
-StructuredBuffer<float4> _poseInput;
 RWStructuredBuffer<HandRegion> _bboxRegion;
 
 [numthreads(1,1,1)]
@@ -79,7 +90,7 @@ void HandRegionDetectFromPose(uint3 id : SV_DispatchThreadID)
 
     // bounding box
     float2 boundingBoxCenter = middle;
-    float boundingBoxSize = boxSize * 2.0f;
+    float boundingBoxSize = boxSize * 1.5f;
 
     // bounding box angle
     float target = PI * 0.5;

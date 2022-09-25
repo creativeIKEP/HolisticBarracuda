@@ -51,6 +51,9 @@ public partial class FacePipeline
 
     #endregion
 
+    public float FaceDetectionScore
+      => _faceDetectionScore;
+
     #region Public methods
 
     public FacePipeline(ResourceSet resources)

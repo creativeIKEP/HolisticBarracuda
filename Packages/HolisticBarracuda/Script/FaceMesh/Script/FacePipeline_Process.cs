@@ -14,6 +14,7 @@ partial class FacePipeline
     FaceRegion _faceRegion = new FaceRegion();
     EyeRegion _leyeRegion = new EyeRegion();
     EyeRegion _reyeRegion = new EyeRegion(true);
+    float _faceDetectionScore;
 
     // Vertex retrieval from the face landmark detector
     float4 GetFaceVertex(int index)
@@ -26,7 +27,8 @@ partial class FacePipeline
 
         // Cancel if the face detection score is too low.
         var face = _faceDetector.Detections.FirstOrDefault();
-        if (face.score < 0.5f) return;
+        _faceDetectionScore = face.score;
+        if (_faceDetectionScore < 0.5f) return;
 
         // Try updating the face region with the detection result. It's
         // actually updated only when there is a noticeable jump from the last
