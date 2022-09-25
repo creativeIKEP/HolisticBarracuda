@@ -26,7 +26,7 @@ To the `scopedRegistries` section:
 ```
 To the `dependencies` section:
 ```
-"jp.ikep.mediapipe.holistic": "1.0.1"
+"jp.ikep.mediapipe.holistic": "1.1.0"
 ```
 Finally, the manifest file looks like below:
 ```
@@ -44,7 +44,7 @@ Finally, the manifest file looks like below:
         }
     ],
     "dependencies": {
-        "jp.ikep.mediapipe.holistic": "1.0.1",
+        "jp.ikep.mediapipe.holistic": "1.1.0",
         ...
     }
 }
