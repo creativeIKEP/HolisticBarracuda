@@ -108,6 +108,7 @@ public class HolisticPipeline : System.IDisposable
     PalmDetector palmDetector;
     HandLandmarkDetector handLandmarkDetector;
     RenderTexture letterBoxTexture;
+    const float handFallbackThreshold = 0.1f;
     ComputeBuffer handsRegionFromPalm;
     ComputeBuffer leftHandRegionFromPose;
     ComputeBuffer rightHandRegionFromPose;
@@ -274,29 +275,15 @@ public class HolisticPipeline : System.IDisposable
     }
 
     void HandProcess(Texture inputTexture, Texture letterBoxTexture, Vector2 spadScale){
-        leftHandDetectionScore = 0;
-        rightHandDetectionScore = 0;
-
         // Inference palm detection.
         palmDetector.ProcessImage(letterBoxTexture);
 
-        int[] countReadCache = new int[1];
-        palmDetector.CountBuffer.GetData(countReadCache, 0, 0, 1);
-        var handDetectionCount = countReadCache[0];
-        handDetectionCount = (int)Mathf.Min(handDetectionCount, 2);
-
-        bool isNeedLeftFallback = (handDetectionCount == 0);
-        bool isNeedRightFallback = (handDetectionCount == 0);
-
-        if(handDetectionCount > 0){
-            // Hand region bounding box update
-            handCs.SetInt("_detectionCount", handDetectionCount);
-            handCs.SetFloat("_regionDetectDt", Time.unscaledDeltaTime);
-            handCs.SetBuffer(0, "_poseInput", blazePoseDetecter.outputBuffer);
-            handCs.SetBuffer(0, "_palmDetections", palmDetector.DetectionBuffer);
-            handCs.SetBuffer(0, "_handsRegionFromPalm", handsRegionFromPalm);
-            handCs.Dispatch(0, 1, 1, 1);
-        }
+        handCs.SetBuffer(0, "_detectionCount", palmDetector.CountBuffer);
+        handCs.SetFloat("_regionDetectDt", Time.unscaledDeltaTime);
+        handCs.SetBuffer(0, "_poseInput", blazePoseDetecter.outputBuffer);
+        handCs.SetBuffer(0, "_palmDetections", palmDetector.DetectionBuffer);
+        handCs.SetBuffer(0, "_handsRegionFromPalm", handsRegionFromPalm);
+        handCs.Dispatch(0, 1, 1, 1);
 
         handCs.SetVector("_spadScale", spadScale);
         handCs.SetInt("_isVerticalFlip", 1);
@@ -322,11 +309,7 @@ public class HolisticPipeline : System.IDisposable
                 leftHandDetectionScore = score;
             }
 
-            if(score < 0.1f){
-                if(isRight) isNeedRightFallback = true;
-                else isNeedLeftFallback = true;
-                continue;
-            }
+            if(score < handFallbackThreshold) continue;
 
             // Key point postprocess
             handCs.SetFloat("_handPostDt", Time.unscaledDeltaTime);
@@ -338,8 +321,8 @@ public class HolisticPipeline : System.IDisposable
         }
 
         // Hand Re-track with pose landmark if hand is not detected or landmark's score is too low.
-        if(isNeedRightFallback) HandProcessFromPose(inputTexture, true);
-        if(isNeedLeftFallback) HandProcessFromPose(inputTexture, false);
+        if(rightHandDetectionScore < handFallbackThreshold) HandProcessFromPose(inputTexture, true);
+        if(leftHandDetectionScore < handFallbackThreshold) HandProcessFromPose(inputTexture, false);
 
         // Cache landmarks to array for accessing data with CPU (C#).  
         AsyncGPUReadback.Request(leftHandVertexBuffer, request => {

@@ -11,7 +11,7 @@
 #define HAND_KEYPOINT_COUNT 21
 
 
-uint _detectionCount;
+ByteAddressBuffer _detectionCount;
 float _regionDetectDt;
 StructuredBuffer<float4> _poseInput;
 StructuredBuffer<PalmDetection> _palmDetections;
@@ -20,7 +20,8 @@ RWStructuredBuffer<HandRegion> _handsRegionFromPalm;
 [numthreads(1, 1, 1)]
 void HandRegionDetectFromPalm(uint id : SV_DispatchThreadID)
 {
-    if(_detectionCount == 0) return;
+    uint detectionCount = _detectionCount.Load(0);
+    if(detectionCount == 0) return;
 
     HandRegion pRegionL = _handsRegionFromPalm[0];
     HandRegion pRegionR = _handsRegionFromPalm[1];
@@ -33,7 +34,7 @@ void HandRegionDetectFromPalm(uint id : SV_DispatchThreadID)
     float4 pinky_r = _poseInput[18];
     float2 boundingBoxCenter_r = (2.0f * index_r.xy + pinky_r.xy) / 3.0f;
     
-    for(uint i = 0; i < _detectionCount; i++){
+    for(uint i = 0; i < detectionCount; i++){
         // Input from the palm detection model
         const PalmDetection palm = _palmDetections[i];
 
