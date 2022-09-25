@@ -409,7 +409,6 @@ MonoBehaviour:
   faceLineTemplateMesh: {fileID: 4300000, guid: 4d1b450bb6d281641af6c72e8b37cfcb, type: 2}
   handShader: {fileID: 4800000, guid: 1b792b8e71d565242ae238f771a1db59, type: 3}
   handScoreThreshold: 0.5
-  holisticResource: {fileID: 11400000, guid: 3d7456c7320edba4caea63df7db64fb7, type: 2}
   holisticInferenceType: 0
 --- !u!114 &1716695272
 MonoBehaviour:
@@ -448,7 +447,7 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1716695270}
   m_Enabled: 1
-  m_VideoClip: {fileID: 32900000, guid: fe097d08b4bc3d547819e723bcc49b71, type: 3}
+  m_VideoClip: {fileID: 32900000, guid: c15773ede1129c044a1cdcd7fe466cc7, type: 3}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 0}
